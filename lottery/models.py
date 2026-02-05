@@ -48,9 +48,25 @@ class Prediction(models.Model):
     attention_weights = models.JSONField(null=True, blank=True, verbose_name='注意力权重')
     
     # 投注建议
-    should_bet = models.BooleanField(default=False, verbose_name='建议投注')
-    recommended_bets = models.JSONField(null=True, blank=True, verbose_name='推荐投注组合')
-    bet_amount = models.IntegerField(default=0, verbose_name='建议投注金额')
+    recommendation = models.CharField(
+        max_length=20, 
+        default='no_bet',
+        choices=[('bet', '建议投注'), ('no_bet', '不建议投注')],
+        verbose_name='投注建议'
+    )
+    percentile_rank = models.FloatField(null=True, blank=True, verbose_name='置信度百分位排名')
+    strategy = models.CharField(max_length=20, default='top5', verbose_name='使用策略')
+    
+    # 投注组合（如果建议投注）
+    betting_combinations = models.JSONField(null=True, blank=True, verbose_name='投注组合详情')
+    total_cost = models.IntegerField(default=0, verbose_name='总成本（元）')
+    bet_count = models.IntegerField(default=0, verbose_name='总注数')
+    recommendation_reason = models.TextField(blank=True, verbose_name='建议理由')
+    
+    # 兼容旧字段
+    should_bet = models.BooleanField(default=False, verbose_name='建议投注（旧）')
+    recommended_bets = models.JSONField(null=True, blank=True, verbose_name='推荐投注组合（旧）')
+    bet_amount = models.IntegerField(default=0, verbose_name='建议投注金额（旧）')
     
     # 元数据
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='预测时间')

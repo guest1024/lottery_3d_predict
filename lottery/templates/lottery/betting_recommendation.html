@@ -1,0 +1,203 @@
+{% extends "lottery/base.html" %}
+{% load static %}
+
+{% block title %}每日投注建议{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-6">每日投注建议</h1>
+    
+    <!-- 最新建议卡片 -->
+    <div id="recommendation-card" class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-semibold">最新建议</h2>
+            <button onclick="loadRecommendation()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                刷新
+            </button>
+        </div>
+        
+        <div id="loading" class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p class="mt-2">加载中...</p>
+        </div>
+        
+        <div id="content" class="hidden">
+            <!-- 建议状态 -->
+            <div id="status-banner" class="p-4 rounded-lg mb-4">
+                <div class="flex items-center">
+                    <div id="status-icon" class="text-4xl mr-3"></div>
+                    <div>
+                        <h3 id="status-title" class="text-xl font-bold"></h3>
+                        <p id="status-desc" class="text-gray-600"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 详细信息 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="p-4 bg-gray-50 rounded">
+                    <div class="text-sm text-gray-500">预测期号</div>
+                    <div id="next-period" class="text-xl font-semibold"></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded">
+                    <div class="text-sm text-gray-500">生成时间</div>
+                    <div id="gen-time" class="text-xl font-semibold"></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded">
+                    <div class="text-sm text-gray-500">置信度评分</div>
+                    <div id="confidence" class="text-xl font-semibold"></div>
+                </div>
+                <div class="p-4 bg-gray-50 rounded">
+                    <div class="text-sm text-gray-500">百分位排名</div>
+                    <div id="percentile" class="text-xl font-semibold"></div>
+                </div>
+            </div>
+            
+            <!-- Top5数字 -->
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2">Top 5 预测数字</h3>
+                <div id="top5-digits" class="flex space-x-2"></div>
+            </div>
+            
+            <!-- 投注组合（如果建议投注） -->
+            <div id="betting-section" class="hidden">
+                <h3 class="text-lg font-semibold mb-2">投注组合</h3>
+                <div class="mb-4">
+                    <span class="font-semibold">总注数:</span> <span id="bet-count"></span> 注
+                    <span class="ml-4 font-semibold">总成本:</span> <span id="total-cost"></span> 元
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 border">序号</th>
+                                <th class="px-4 py-2 border">组合</th>
+                                <th class="px-4 py-2 border">类型</th>
+                                <th class="px-4 py-2 border">注数</th>
+                                <th class="px-4 py-2 border">成本</th>
+                                <th class="px-4 py-2 border">奖金</th>
+                            </tr>
+                        </thead>
+                        <tbody id="combinations-table">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="error" class="hidden text-red-500 text-center py-4"></div>
+    </div>
+    
+    <!-- 历史建议列表 -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">历史建议</h2>
+        <div id="history-list"></div>
+    </div>
+</div>
+
+<script>
+async function loadRecommendation() {
+    const loading = document.getElementById('loading');
+    const content = document.getElementById('content');
+    const error = document.getElementById('error');
+    
+    loading.classList.remove('hidden');
+    content.classList.add('hidden');
+    error.classList.add('hidden');
+    
+    try {
+        const response = await fetch('/api/betting/latest-recommendation/');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayRecommendation(data.recommendation);
+            content.classList.remove('hidden');
+        } else {
+            error.textContent = data.message;
+            error.classList.remove('hidden');
+        }
+    } catch (e) {
+        error.textContent = '加载失败: ' + e.message;
+        error.classList.remove('hidden');
+    } finally {
+        loading.classList.add('hidden');
+    }
+}
+
+function displayRecommendation(rec) {
+    const isBet = rec.recommendation === 'bet';
+    
+    // 状态Banner
+    const statusBanner = document.getElementById('status-banner');
+    const statusIcon = document.getElementById('status-icon');
+    const statusTitle = document.getElementById('status-title');
+    const statusDesc = document.getElementById('status-desc');
+    
+    if (isBet) {
+        statusBanner.className = 'p-4 rounded-lg mb-4 bg-green-100 border-2 border-green-500';
+        statusIcon.textContent = '✅';
+        statusTitle.textContent = '建议投注';
+        statusDesc.textContent = rec.reason;
+    } else {
+        statusBanner.className = 'p-4 rounded-lg mb-4 bg-yellow-100 border-2 border-yellow-500';
+        statusIcon.textContent = '⚠️';
+        statusTitle.textContent = '不建议投注';
+        statusDesc.textContent = rec.reason;
+    }
+    
+    // 详细信息
+    document.getElementById('next-period').textContent = rec.next_period;
+    document.getElementById('gen-time').textContent = rec.date;
+    document.getElementById('confidence').textContent = rec.confidence_score.toFixed(2);
+    document.getElementById('percentile').textContent = rec.percentile_rank ? rec.percentile_rank.toFixed(1) + '%' : 'N/A';
+    
+    // Top5数字
+    const top5Container = document.getElementById('top5-digits');
+    top5Container.innerHTML = '';
+    rec.top5_digits.forEach((digit, idx) => {
+        const prob = rec.top5_probs ? rec.top5_probs[idx] : 0;
+        const div = document.createElement('div');
+        div.className = 'flex flex-col items-center p-3 bg-blue-100 rounded';
+        div.innerHTML = `
+            <div class="text-2xl font-bold">${digit}</div>
+            <div class="text-xs text-gray-600">${(prob * 100).toFixed(1)}%</div>
+        `;
+        top5Container.appendChild(div);
+    });
+    
+    // 投注组合
+    const bettingSection = document.getElementById('betting-section');
+    if (isBet && rec.betting_combinations) {
+        bettingSection.classList.remove('hidden');
+        document.getElementById('bet-count').textContent = rec.bet_count;
+        document.getElementById('total-cost').textContent = rec.total_cost;
+        
+        const tbody = document.getElementById('combinations-table');
+        tbody.innerHTML = '';
+        rec.betting_combinations.slice(0, 10).forEach((combo, idx) => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td class="px-4 py-2 border text-center">${idx + 1}</td>
+                <td class="px-4 py-2 border text-center font-mono">${combo.numbers.join(',')}</td>
+                <td class="px-4 py-2 border text-center">${combo.type === 'group6' ? '组选6' : '组选3'}</td>
+                <td class="px-4 py-2 border text-center">${combo.bet_count}</td>
+                <td class="px-4 py-2 border text-center">${combo.cost}元</td>
+                <td class="px-4 py-2 border text-center">${combo.expected_prize}元</td>
+            `;
+        });
+        
+        if (rec.betting_combinations.length > 10) {
+            const row = tbody.insertRow();
+            row.innerHTML = `<td colspan="6" class="px-4 py-2 border text-center text-gray-500">还有 ${rec.betting_combinations.length - 10} 个组合...</td>`;
+        }
+    } else {
+        bettingSection.classList.add('hidden');
+    }
+}
+
+// 页面加载时自动加载
+document.addEventListener('DOMContentLoaded', () => {
+    loadRecommendation();
+});
+</script>
+{% endblock %}

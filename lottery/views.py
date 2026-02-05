@@ -804,6 +804,14 @@ def scheduler_status_view(request):
     return render(request, 'lottery/scheduler_status.html', context)
 
 
+def betting_recommendation_view(request):
+    """投注建议页面视图"""
+    context = {
+        'page_title': '每日投注建议',
+    }
+    return render(request, 'lottery/betting_recommendation.html', context)
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def run_task_now(request):
@@ -836,4 +844,155 @@ def run_task_now(request):
         return JsonResponse({
             'status': 'error',
             'message': f'执行失败: {str(e)}'
+        })
+
+
+# ==================== 投注建议 API ====================
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_latest_recommendation(request):
+    """
+    获取最新投注建议API
+    
+    返回格式:
+    {
+        "status": "success",
+        "recommendation": {
+            "id": 123,
+            "date": "2026-02-05",
+            "next_period": "2026-02-06",
+            "recommendation": "bet" | "no_bet",
+            "confidence_score": 17.75,
+            "percentile_rank": 92.5,
+            "strategy": "top5",
+            "top5_digits": [9, 4, 2, 3, 0],
+            "top5_probs": [0.295, 0.268, 0.266, 0.264, 0.259],
+            "betting_combinations": [...],  // 如果建议投注
+            "total_cost": 200,
+            "bet_count": 100,
+            "reason": "置信度排名前5%，建议投注100注"
+        }
+    }
+    """
+    try:
+        # 获取最新的预测
+        latest_pred = Prediction.objects.order_by('-created_at').first()
+        
+        if not latest_pred:
+            return JsonResponse({
+                'status': 'error',
+                'message': '暂无预测数据，请先生成预测'
+            })
+        
+        # 构建返回数据
+        recommendation_data = {
+            'id': latest_pred.id,
+            'date': latest_pred.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'current_period': latest_pred.period.period,
+            'next_period': latest_pred.predicted_for_period,
+            'recommendation': latest_pred.recommendation,
+            'confidence_score': float(latest_pred.confidence_score),
+            'percentile_rank': float(latest_pred.percentile_rank) if latest_pred.percentile_rank else None,
+            'strategy': latest_pred.strategy,
+            'top5_digits': latest_pred.top5_digits,
+            'top5_probs': [float(latest_pred.digit_probs[d]) for d in latest_pred.top5_digits] if latest_pred.digit_probs else None,
+            'betting_combinations': latest_pred.betting_combinations,
+            'total_cost': latest_pred.total_cost,
+            'bet_count': latest_pred.bet_count,
+            'reason': latest_pred.recommendation_reason,
+        }
+        
+        return JsonResponse({
+            'status': 'success',
+            'recommendation': recommendation_data
+        })
+        
+    except Exception as e:
+        import traceback
+        return JsonResponse({
+            'status': 'error',
+            'message': f'获取建议失败: {str(e)}',
+            'traceback': traceback.format_exc()
+        })
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_recommendation_history(request):
+    """
+    获取历史投注建议列表API
+    
+    参数:
+        - page: 页码（默认1）
+        - page_size: 每页数量（默认10）
+        - recommendation: 筛选 'bet' | 'no_bet' | 'all'（默认all）
+    
+    返回格式:
+    {
+        "status": "success",
+        "data": {
+            "total": 100,
+            "page": 1,
+            "page_size": 10,
+            "total_pages": 10,
+            "recommendations": [...]
+        }
+    }
+    """
+    try:
+        # 获取参数
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        recommendation_filter = request.GET.get('recommendation', 'all')
+        
+        # 查询
+        predictions = Prediction.objects.all().order_by('-created_at')
+        
+        # 筛选
+        if recommendation_filter in ['bet', 'no_bet']:
+            predictions = predictions.filter(recommendation=recommendation_filter)
+        
+        # 总数
+        total = predictions.count()
+        total_pages = (total + page_size - 1) // page_size
+        
+        # 分页
+        start = (page - 1) * page_size
+        end = start + page_size
+        page_predictions = predictions[start:end]
+        
+        # 构建返回数据
+        recommendations_list = []
+        for pred in page_predictions:
+            recommendations_list.append({
+                'id': pred.id,
+                'date': pred.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'next_period': pred.predicted_for_period,
+                'recommendation': pred.recommendation,
+                'confidence_score': float(pred.confidence_score),
+                'percentile_rank': float(pred.percentile_rank) if pred.percentile_rank else None,
+                'strategy': pred.strategy,
+                'top5_digits': pred.top5_digits,
+                'total_cost': pred.total_cost,
+                'bet_count': pred.bet_count,
+            })
+        
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'total': total,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': total_pages,
+                'recommendations': recommendations_list
+            }
+        })
+        
+    except Exception as e:
+        import traceback
+        return JsonResponse({
+            'status': 'error',
+            'message': f'获取历史建议失败: {str(e)}',
+            'traceback': traceback.format_exc()
         })
