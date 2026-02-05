@@ -116,12 +116,43 @@ def calculate_opportunity_score(digit_probs: np.ndarray, history: np.ndarray) ->
     return score
 
 
-def generate_betting_plan(top_digits: list, score: float, num_bets: int = 100) -> dict:
+def calculate_combination_probability(combo: tuple, digit_probs: np.ndarray) -> float:
     """
-    生成投注计划
+    计算组合的中奖概率
+    
+    Args:
+        combo: 组合元组,如 (1, 2, 3) 或 (1, 1, 2)
+        digit_probs: 10个数字的预测概率
+        
+    Returns:
+        该组合的理论中奖概率
+    """
+    # 判断是组六还是组三
+    unique_digits = set(combo)
+    
+    if len(unique_digits) == 3:
+        # 组六: 三个不同数字,任意排列都中奖 (6种排列)
+        # P = P(d1) * P(d2) * P(d3) * 6
+        prob = digit_probs[combo[0]] * digit_probs[combo[1]] * digit_probs[combo[2]] * 6
+    else:
+        # 组三: 两个相同 + 一个不同,任意排列都中奖 (3种排列)
+        # P = P(d1)^2 * P(d2) * 3
+        unique_list = list(unique_digits)
+        if combo[0] == combo[1]:
+            prob = digit_probs[combo[0]]**2 * digit_probs[combo[2]] * 3
+        else:
+            prob = digit_probs[combo[1]]**2 * digit_probs[combo[0]] * 3
+    
+    return float(prob)
+
+
+def generate_betting_plan(top_digits: list, digit_probs: np.ndarray, score: float, num_bets: int = 100) -> dict:
+    """
+    生成优化的投注计划 - 基于概率分配注数
     
     Args:
         top_digits: Top10数字列表
+        digit_probs: 10个数字的预测概率数组
         score: 机会评分
         num_bets: 总投注注数
         
@@ -129,73 +160,129 @@ def generate_betting_plan(top_digits: list, score: float, num_bets: int = 100) -
         {
             'num_bets': 100,
             'total_cost': 200,
-            'combinations': [[0, 1, 2], [0, 1, 3], ...],
+            'combinations': [
+                {'combo': [0,1,2], 'probability': 0.025, 'bets': 5, 'type': 'group6', 'expected_return': 865},
+                ...
+            ],
             'group6_count': 70,
             'group3_count': 30,
             'expected_roi': 405.0,
-            'prize_breakdown': {
-                'group6_prize': 173,
-                'group3_prize': 346,
-                'direct_prize': 1040
-            }
+            'total_probability': 0.85,  # 累计覆盖概率
+            'prize_breakdown': {...}
         }
     """
-    # 根据评分调整组三/组六比例
-    if score >= 63.3:  # Top1% 极高评分
-        group6_ratio = 0.75  # 更多组六
-    elif score >= 62.9:  # Top5%
-        group6_ratio = 0.70
-    else:
-        group6_ratio = 0.65
+    # 步骤1: 生成所有可能的组合并计算概率
+    candidates = []
     
-    group6_count = int(num_bets * group6_ratio)
-    group3_count = num_bets - group6_count
+    # 组六组合 (从Top10中选3个不同数字)
+    from itertools import combinations
+    for combo in combinations(top_digits, 3):
+        combo_sorted = tuple(sorted(combo))
+        prob = calculate_combination_probability(combo_sorted, digit_probs)
+        candidates.append({
+            'combo': list(combo_sorted),
+            'type': 'group6',
+            'probability': prob,
+            'prize': 173
+        })
     
-    combinations = []
-    used_combos = set()
+    # 组三组合 (从Top10中选2个,其中1个重复)
+    for d1 in top_digits:
+        for d2 in top_digits:
+            if d1 != d2:
+                combo_sorted = tuple(sorted([d1, d1, d2]))
+                prob = calculate_combination_probability(combo_sorted, digit_probs)
+                candidates.append({
+                    'combo': list(combo_sorted),
+                    'type': 'group3',
+                    'probability': prob,
+                    'prize': 346
+                })
     
-    # 生成组六投注（三个不同数字）
-    for _ in range(group6_count):
-        attempts = 0
-        while attempts < 100:
-            combo = tuple(sorted(np.random.choice(top_digits, size=3, replace=False)))
-            if len(set(combo)) == 3 and combo not in used_combos:
-                combinations.append([int(x) for x in combo])  # 转换为 Python int
-                used_combos.add(combo)
-                break
-            attempts += 1
+    # 步骤2: 按概率排序
+    candidates.sort(key=lambda x: x['probability'], reverse=True)
     
-    # 生成组三投注（两个相同数字 + 一个不同）
-    for _ in range(group3_count):
-        attempts = 0
-        while attempts < 100:
-            digit1 = np.random.choice(top_digits)
-            digit2 = np.random.choice([d for d in top_digits if d != digit1])
-            combo = tuple(sorted([digit1, digit1, digit2]))
-            if combo not in used_combos:
-                combinations.append([int(x) for x in combo])  # 转换为 Python int
-                used_combos.add(combo)
-                break
-            attempts += 1
+    # 步骤3: 优化分配注数
+    # 使用概率加权分配,高概率组合获得更多注数
     
-    # 计算成本
-    total_cost = len(combinations) * 2  # 每注2元
+    # 选择Top候选组合 (数量= num_bets的20%-30%, 更集中)
+    top_n = min(max(int(num_bets * 0.25), 15), len(candidates))
+    selected_candidates = candidates[:top_n]
     
-    # 预期ROI（基于历史Top1%策略数据）
-    if score >= 58.45:  # Top1%阈值
-        expected_roi = 405.0  # 历史ROI +405%
-    elif score >= 52.80:  # Top5%阈值
-        expected_roi = -57.0
-    else:
-        expected_roi = -13.0
+    # 计算每个组合的权重 - 使用指数衰减
+    # 第1名权重最高,后面指数递减
+    weights = []
+    decay_rate = 0.85  # 衰减率,每个排名降低15%
+    for i in range(len(selected_candidates)):
+        weight = decay_rate ** i  # 指数衰减
+        weights.append(weight)
+    
+    # 归一化
+    weights = np.array(weights)
+    weights = weights / np.sum(weights)
+    
+    # 分配注数
+    allocated_bets = []
+    
+    # 先按权重计算每个组合的理论注数
+    theoretical_bets = []
+    for i, weight in enumerate(weights):
+        bets = max(1, round(num_bets * weight))  # 至少1注
+        theoretical_bets.append(bets)
+    
+    # 调整使总数等于num_bets
+    total_theoretical = sum(theoretical_bets)
+    if total_theoretical != num_bets:
+        # 按比例调整
+        adjustment_factor = num_bets / total_theoretical
+        theoretical_bets = [max(1, round(b * adjustment_factor)) for b in theoretical_bets]
+        
+        # 如果还有差异,从最后开始微调
+        diff = num_bets - sum(theoretical_bets)
+        idx = len(theoretical_bets) - 1
+        while diff != 0 and idx >= 0:
+            if diff > 0 and theoretical_bets[idx] < num_bets:
+                theoretical_bets[idx] += 1
+                diff -= 1
+            elif diff < 0 and theoretical_bets[idx] > 1:
+                theoretical_bets[idx] -= 1
+                diff += 1
+            idx -= 1
+    
+    # 创建最终分配列表
+    for i, candidate in enumerate(selected_candidates):
+        bets = theoretical_bets[i]
+        if bets > 0:
+            allocated_bets.append({
+                'combo': candidate['combo'],
+                'type': candidate['type'],
+                'probability': float(candidate['probability']),
+                'bets': int(bets),
+                'cost': int(bets * 2),
+                'prize': int(candidate['prize']),
+                'expected_return': float(bets * 2 * candidate['probability'] * candidate['prize'])
+            })
+    
+    # 步骤4: 统计信息
+    total_bets = sum(b['bets'] for b in allocated_bets)
+    total_cost = total_bets * 2
+    group6_count = sum(b['bets'] for b in allocated_bets if b['type'] == 'group6')
+    group3_count = sum(b['bets'] for b in allocated_bets if b['type'] == 'group3')
+    total_probability = sum(b['probability'] for b in allocated_bets)
+    total_expected_return = sum(b['expected_return'] for b in allocated_bets)
+    
+    # 预期ROI = (期望收益 - 成本) / 成本 * 100%
+    expected_roi = ((total_expected_return - total_cost) / total_cost * 100) if total_cost > 0 else 0
     
     return {
-        'num_bets': int(len(combinations)),
+        'num_bets': int(total_bets),
         'total_cost': int(total_cost),
-        'combinations': combinations,
+        'combinations': allocated_bets,  # 每个组合包含概率和注数
         'group6_count': int(group6_count),
         'group3_count': int(group3_count),
-        'expected_roi': float(expected_roi),
+        'expected_roi': float(round(expected_roi, 2)),
+        'total_probability': float(round(total_probability, 4)),  # 累计覆盖概率
+        'total_expected_return': float(round(total_expected_return, 2)),
         'prize_breakdown': {
             'group6_prize': 173,
             'group3_prize': 346,
@@ -546,8 +633,8 @@ def generate_prediction(request):
         except:
             next_period = f"预测-{latest_period.date}"
         
-        # 生成投注计划
-        betting_plan = generate_betting_plan(top10_digits, score, num_bets)
+        # 生成投注计划 (传入digit_probs用于概率计算)
+        betting_plan = generate_betting_plan(top10_digits, digit_probs, score, num_bets)
         
         # 保存预测到数据库
         prediction = Prediction.objects.create(
