@@ -1,0 +1,131 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}历史开奖 - 3D彩票预测系统{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 style="margin: 0; color: #303133;">📜 历史开奖记录</h1>
+    <button onclick="quickCrawl()" class="btn btn-success">🕷️ 拉取最新数据</button>
+</div>
+
+<div class="card">
+    <!-- 搜索栏 -->
+    <form method="get" style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <input type="text" name="q" value="{{ query }}" placeholder="搜索期号或号码..." 
+               style="flex: 1; padding: 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px;">
+        <button type="submit" class="btn btn-primary">🔍 搜索</button>
+    </form>
+    
+    <!-- 开奖列表 -->
+    {% if page_obj.object_list %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>期号</th>
+                <th>日期</th>
+                <th>开奖号码</th>
+                <th>形态</th>
+                <th>和值</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for period in page_obj %}
+            <tr>
+                <td><strong>{{ period.period }}</strong></td>
+                <td>{{ period.date|date:"Y-m-d" }}</td>
+                <td>
+                    <div class="lottery-balls">
+                        <div class="ball" style="width: 36px; height: 36px; font-size: 16px;">{{ period.digit1 }}</div>
+                        <div class="ball" style="width: 36px; height: 36px; font-size: 16px;">{{ period.digit2 }}</div>
+                        <div class="ball" style="width: 36px; height: 36px; font-size: 16px;">{{ period.digit3 }}</div>
+                    </div>
+                </td>
+                <td>
+                    <span class="tag {% if period.shape == '豹子' %}tag-danger{% elif period.shape == '组三' %}tag-warning{% else %}tag-info{% endif %}">
+                        {{ period.shape }}
+                    </span>
+                </td>
+                <td>{{ period.sum_value }}</td>
+                <td>
+                    <a href="{% url 'lottery:period_detail' period.period %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">详情</a>
+                    <a href="{% url 'lottery:feature_extraction' period.period %}" class="btn btn-warning" style="padding: 6px 12px; font-size: 13px;">特征</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- 分页 -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="page-item">首页</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-item">上一页</a>
+        {% endif %}
+        
+        <span class="page-item active">{{ page_obj.number }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-item">下一页</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="page-item">末页</a>
+        {% endif %}
+        
+        <span style="padding: 8px 12px; color: #909399;">
+            共 {{ page_obj.paginator.count }} 期
+        </span>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <p>{% if query %}未找到匹配的记录{% else %}暂无历史数据{% endif %}</p>
+        {% if query %}
+            <a href="{% url 'lottery:history_list' %}" class="btn btn-primary" style="margin-top: 16px;">查看全部</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 快速爬取数据（与base.html中的函数相同）
+async function quickCrawl() {
+    if (!confirm('确定要爬取最新数据吗？\n这将自动获取最新开奖期号并导入数据库。')) {
+        return;
+    }
+    
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '爬取中...';
+    
+    try {
+        const response = await fetch("{% url 'lottery:api_crawl' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert(`✓ ${data.message}\n\n新增: ${data.added}期 | 更新: ${data.updated}期 | 总计: ${data.total}期`);
+            location.reload();
+        } else {
+            alert(`✗ ${data.message}`);
+        }
+    } catch (error) {
+        alert(`✗ 请求失败: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
+}
+</script>
+{% endblock %}

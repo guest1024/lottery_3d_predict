@@ -1,0 +1,270 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}投资策略分析{% endblock %}
+
+{% block content %}
+<div style="padding: 30px; max-width: 1400px; margin: 0 auto;">
+    <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="margin: 0; color: #1f2937; font-size: 32px; font-weight: 700;">
+            📈 投资策略分析
+        </h1>
+        <button onclick="runMonitor()" class="btn btn-success" style="padding: 12px 24px; font-size: 16px;">
+            🔄 刷新评估
+        </button>
+    </div>
+
+    <!-- 当前机会评估 -->
+    {% if current_opportunity %}
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102,126,234,0.3);">
+        <h2 style="color: white; font-size: 24px; margin-bottom: 20px; font-weight: 600;">
+            🎯 当前机会评估
+        </h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <!-- 评分卡片 -->
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">机会评分</div>
+                <div style="color: white; font-size: 36px; font-weight: 700;">
+                    {{ current_opportunity.opportunity_score|floatformat:2 }}
+                    <span style="font-size: 18px; font-weight: 400;">分</span>
+                </div>
+                <div style="color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 8px;">
+                    阈值: {{ current_opportunity.threshold|floatformat:2 }}分
+                </div>
+            </div>
+            
+            <!-- 建议卡片 -->
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">投注建议</div>
+                {% if current_opportunity.recommendation == 'BET' %}
+                <div style="color: #10b981; font-size: 28px; font-weight: 700; background: white; padding: 8px 16px; border-radius: 8px; display: inline-block;">
+                    ✅ 建议投注
+                </div>
+                {% else %}
+                <div style="color: #f59e0b; font-size: 28px; font-weight: 700; background: white; padding: 8px 16px; border-radius: 8px; display: inline-block;">
+                    ⏸️ 继续观望
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- 上期开奖 -->
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">上期开奖</div>
+                <div style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 4px;">
+                    {{ current_opportunity.last_period.period }}
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    {% for num in current_opportunity.last_period.numbers %}
+                    <div style="background: white; color: #667eea; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700;">
+                        {{ num }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- 更新时间 -->
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">更新时间</div>
+                <div style="color: white; font-size: 16px; font-weight: 500;">
+                    {{ current_opportunity.timestamp|slice:":19" }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 投注计划（如果建议投注） -->
+        {% if current_opportunity.recommendation == 'BET' %}
+        <div style="margin-top: 25px; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px;">
+            <h3 style="color: white; font-size: 18px; margin-bottom: 15px; font-weight: 600;">💰 投注计划</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 13px;">投注注数</div>
+                    <div style="color: white; font-size: 24px; font-weight: 600;">{{ current_opportunity.betting_plan.num_bets }}注</div>
+                </div>
+                <div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 13px;">总成本</div>
+                    <div style="color: white; font-size: 24px; font-weight: 600;">¥{{ current_opportunity.betting_plan.total_cost }}</div>
+                </div>
+                <div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 13px;">预期胜率</div>
+                    <div style="color: white; font-size: 24px; font-weight: 600;">66.7%</div>
+                </div>
+                <div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 13px;">预期ROI</div>
+                    <div style="color: #10b981; font-size: 24px; font-weight: 600;">+405%</div>
+                </div>
+            </div>
+            
+            <details style="margin-top: 15px;">
+                <summary style="color: white; cursor: pointer; font-size: 14px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    查看前20注推荐 ▼
+                </summary>
+                <div style="margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;">
+                    {% for combo in current_opportunity.betting_plan.combinations|slice:":20" %}
+                    <div style="background: rgba(255,255,255,0.15); padding: 8px; border-radius: 6px; text-align: center;">
+                        <span style="color: white; font-size: 16px; font-weight: 600;">
+                            {{ combo.0 }} {{ combo.1 }} {{ combo.2 }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </details>
+        </div>
+        {% else %}
+        <!-- 观望建议 -->
+        <div style="margin-top: 25px; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px;">
+            <h3 style="color: white; font-size: 18px; margin-bottom: 10px; font-weight: 600;">💡 观望建议</h3>
+            <p style="color: rgba(255,255,255,0.9); font-size: 15px; line-height: 1.6;">
+                当前评分未达到投注阈值，建议继续观望。<br>
+                评分差距: <strong>{{ current_opportunity.score_gap|floatformat:2 }}分</strong><br>
+                等待评分 ≥ {{ current_opportunity.threshold|floatformat:2 }}分时再入场。
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div style="background: #f3f4f6; border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 30px;">
+        <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+        <p style="color: #6b7280; font-size: 16px;">暂无当前机会评估数据</p>
+        <button onclick="runMonitor()" class="btn btn-primary" style="margin-top: 15px;">
+            立即评估
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- 策略对比 -->
+    {% if golden_opportunities %}
+    <div style="background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+        <h2 style="color: #1f2937; font-size: 24px; margin-bottom: 20px; font-weight: 600;">
+            📊 历史回测结果
+        </h2>
+        
+        <div style="margin-bottom: 25px;">
+            <h3 style="color: #4b5563; font-size: 18px; margin-bottom: 15px;">预测准确率统计</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; padding: 20px; color: white;">
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Top10完全命中率</div>
+                    <div style="font-size: 32px; font-weight: 700;">
+                        74.0%
+                    </div>
+                    <div style="font-size: 13px; opacity: 0.8; margin-top: 8px;">
+                        {{ golden_opportunities.summary.full_hit_count }}/{{ golden_opportunities.summary.total_periods }}期
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; padding: 20px; color: white;">
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">部分命中率</div>
+                    <div style="font-size: 32px; font-weight: 700;">
+                        26.0%
+                    </div>
+                    <div style="font-size: 13px; opacity: 0.8; margin-top: 8px;">
+                        {{ golden_opportunities.summary.partial_hit_count }}/{{ golden_opportunities.summary.total_periods }}期
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <h3 style="color: #4b5563; font-size: 18px; margin-bottom: 15px;">评分分布与命中率</h3>
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb;">
+                            <th style="text-align: left; padding: 12px; color: #6b7280; font-weight: 600;">评分区间</th>
+                            <th style="text-align: left; padding: 12px; color: #6b7280; font-weight: 600;">阈值</th>
+                            <th style="text-align: left; padding: 12px; color: #6b7280; font-weight: 600;">说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 12px; color: #1f2937; font-weight: 600;">Top1% 极高分</td>
+                            <td style="padding: 12px; color: #1f2937; font-family: monospace;">≥ {{ golden_opportunities.scoring_system.score_distribution.percentile_99|floatformat:2 }}</td>
+                            <td style="padding: 12px; color: #059669; font-weight: 600;">✅ 推荐投注（胜率67%，ROI +405%）</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 12px; color: #1f2937; font-weight: 600;">Top5% 高分</td>
+                            <td style="padding: 12px; color: #1f2937; font-family: monospace;">≥ {{ golden_opportunities.scoring_system.score_distribution.percentile_95|floatformat:2 }}</td>
+                            <td style="padding: 12px; color: #dc2626;">❌ 不推荐（胜率20%，ROI -57%）</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; color: #1f2937; font-weight: 600;">Top10% 中等</td>
+                            <td style="padding: 12px; color: #1f2937; font-family: monospace;">≥ {{ golden_opportunities.scoring_system.score_distribution.percentile_90|floatformat:2 }}</td>
+                            <td style="padding: 12px; color: #dc2626;">❌ 不推荐（胜率17%，ROI -13%）</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div style="margin-top: 25px;">
+            <h3 style="color: #4b5563; font-size: 18px; margin-bottom: 15px;">🌟 历史Top10高分机会</h3>
+            <div style="background: #f9fafb; border-radius: 8px; padding: 15px; max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="position: sticky; top: 0; background: #f9fafb;">
+                        <tr style="border-bottom: 2px solid #e5e7eb;">
+                            <th style="text-align: left; padding: 10px; color: #6b7280; font-weight: 600; font-size: 13px;">期号</th>
+                            <th style="text-align: left; padding: 10px; color: #6b7280; font-weight: 600; font-size: 13px;">日期</th>
+                            <th style="text-align: left; padding: 10px; color: #6b7280; font-weight: 600; font-size: 13px;">实际号码</th>
+                            <th style="text-align: right; padding: 10px; color: #6b7280; font-weight: 600; font-size: 13px;">评分</th>
+                            <th style="text-align: center; padding: 10px; color: #6b7280; font-weight: 600; font-size: 13px;">命中</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for opp in golden_opportunities.top_opportunities|slice:":20" %}
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 10px; color: #1f2937; font-size: 14px;">{{ opp.period }}</td>
+                            <td style="padding: 10px; color: #6b7280; font-size: 13px;">{{ opp.date }}</td>
+                            <td style="padding: 10px;">
+                                <span style="display: inline-flex; gap: 6px;">
+                                    {% for num in opp.actual_numbers %}
+                                    <span style="background: #667eea; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">
+                                        {{ num }}
+                                    </span>
+                                    {% endfor %}
+                                </span>
+                            </td>
+                            <td style="padding: 10px; color: #1f2937; font-weight: 600; text-align: right; font-size: 14px;">
+                                {{ opp.opportunity_score|floatformat:2 }}
+                            </td>
+                            <td style="padding: 10px; text-align: center; font-size: 16px;">
+                                {% if opp.full_hit_top10 %}
+                                <span style="color: #10b981;">✓</span>
+                                {% else %}
+                                <span style="color: #f59e0b;">{{ opp.hit_in_top10 }}/3</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 使用指南 -->
+    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 20px; margin-top: 30px;">
+        <h3 style="color: #92400e; font-size: 18px; margin-bottom: 12px; font-weight: 600;">⚠️ 投资风险提示</h3>
+        <ul style="color: #78350f; line-height: 1.8; margin: 0; padding-left: 20px;">
+            <li>彩票是概率游戏，历史业绩不代表未来表现</li>
+            <li>即使Top1%策略历史胜率67%，仍有33%概率亏损</li>
+            <li>建议单次投注金额 ≤ 总资金的5%</li>
+            <li>理性购彩，娱乐为主，切勿沉迷</li>
+            <li>本系统仅供学习研究使用，不构成投资建议</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+async function runMonitor() {
+    if (!confirm('确定要重新评估当前机会吗？\n这将运行实时监控脚本。')) {
+        return;
+    }
+    
+    // TODO: 实现AJAX调用后端运行monitor脚本
+    alert('功能开发中：将运行 realtime_opportunity_monitor.py 并刷新页面');
+    
+    // 临时方案：刷新页面
+    location.reload();
+}
+</script>
+{% endblock %}

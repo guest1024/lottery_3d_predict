@@ -1,0 +1,669 @@
+{
+  "summary": {
+    "total_periods": 500,
+    "full_hit_count": 370,
+    "partial_hit_count": 130,
+    "miss_count": 0,
+    "full_hit_rate": 0.74
+  },
+  "feature_analysis": {
+    "full_hit_means": {
+      "model": {
+        "top1_prob": 0.299017116669062,
+        "top3_mean_prob": 0.2923861963523401,
+        "top5_mean_prob": 0.28601597032031495,
+        "top10_sum_prob": 2.7372743683892327,
+        "gap_1_2": 0.002540962679966076,
+        "gap_2_3": 0.014810834945859136,
+        "gap_3_4": 0.0022645637795731827,
+        "prob_std": 0.01582897815450623,
+        "prob_entropy": 3.5418774327716314,
+        "prob_gini": 0.032210770688896447,
+        "top3_concentration": 0.3204498564069336,
+        "top5_concentration": 0.5224469159100507
+      },
+      "sequence": {
+        "digit_freq_std": 2.7492299145011105,
+        "digit_freq_max": 13.821621621621622,
+        "digit_freq_min": 4.751351351351351,
+        "unique_digits_count": 10.0,
+        "shape_group6_ratio": 0.7450450450450438,
+        "shape_group3_ratio": 0.24243243243243182,
+        "shape_leopard_ratio": 0.012522522522522521,
+        "shape_entropy": 0.5840591531933279,
+        "sum_mean": 13.684144144144149,
+        "sum_std": 4.877874328827166,
+        "sum_trend": 0.08162162162162148,
+        "recent_5_unique_count": 4.994594594594594,
+        "recent_10_unique_count": 9.964864864864865,
+        "max_consecutive_shape": 8.854054054054053
+      }
+    },
+    "miss_means": {}
+  },
+  "scoring_system": {
+    "feature_weights": {
+      "top1_prob": 15,
+      "top3_mean_prob": 15,
+      "gap_1_2": 10,
+      "prob_std": 10,
+      "top3_concentration": 10,
+      "digit_freq_std": 8,
+      "shape_entropy": 7,
+      "sum_std": 5,
+      "recent_5_unique_count": 5,
+      "max_consecutive_shape": 5
+    },
+    "score_distribution": {
+      "max": 63.784150742721785,
+      "mean": 60.85098079725535,
+      "median": 61.159325834250055,
+      "min": 54.81175721388044,
+      "percentile_90": 62.66391005061152,
+      "percentile_95": 62.92877915945213,
+      "percentile_99": 63.29657952940009
+    }
+  },
+  "top_opportunities": [
+    {
+      "period": "2025-11-19",
+      "date": "2025309",
+      "actual_numbers": [
+        1,
+        9,
+        0
+      ],
+      "opportunity_score": 63.784150742721785,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-16",
+      "date": "2024307",
+      "actual_numbers": [
+        5,
+        7,
+        9
+      ],
+      "opportunity_score": 63.63395009781984,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-17",
+      "date": "2024308",
+      "actual_numbers": [
+        6,
+        5,
+        4
+      ],
+      "opportunity_score": 63.473615810966265,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-11-20",
+      "date": "2025310",
+      "actual_numbers": [
+        1,
+        6,
+        9
+      ],
+      "opportunity_score": 63.44571797391916,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-07",
+      "date": "2025087",
+      "actual_numbers": [
+        8,
+        2,
+        6
+      ],
+      "opportunity_score": 63.39393481075869,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-11-28",
+      "date": "2025318",
+      "actual_numbers": [
+        4,
+        3,
+        0
+      ],
+      "opportunity_score": 63.2955961427197,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-28",
+      "date": "2025108",
+      "actual_numbers": [
+        4,
+        0,
+        7
+      ],
+      "opportunity_score": 63.25821608022137,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-01",
+      "date": "2025081",
+      "actual_numbers": [
+        4,
+        0,
+        3
+      ],
+      "opportunity_score": 63.20269855782082,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-20",
+      "date": "2024311",
+      "actual_numbers": [
+        0,
+        6,
+        7
+      ],
+      "opportunity_score": 63.19427495046821,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-12-03",
+      "date": "2024324",
+      "actual_numbers": [
+        3,
+        8,
+        4
+      ],
+      "opportunity_score": 63.17301107537015,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-08",
+      "date": "2025088",
+      "actual_numbers": [
+        0,
+        2,
+        2
+      ],
+      "opportunity_score": 63.171811194178254,
+      "full_hit_top10": false,
+      "hit_in_top10": 2
+    },
+    {
+      "period": "2024-11-15",
+      "date": "2024306",
+      "actual_numbers": [
+        2,
+        9,
+        6
+      ],
+      "opportunity_score": 63.169429478980675,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-11-16",
+      "date": "2025306",
+      "actual_numbers": [
+        6,
+        9,
+        7
+      ],
+      "opportunity_score": 63.1331020713797,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-03-30",
+      "date": "2025079",
+      "actual_numbers": [
+        6,
+        5,
+        7
+      ],
+      "opportunity_score": 63.11459010734362,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-09",
+      "date": "2025089",
+      "actual_numbers": [
+        6,
+        5,
+        8
+      ],
+      "opportunity_score": 63.06948305965392,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-27",
+      "date": "2025107",
+      "actual_numbers": [
+        0,
+        2,
+        7
+      ],
+      "opportunity_score": 63.04480573008207,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-26",
+      "date": "2025106",
+      "actual_numbers": [
+        7,
+        5,
+        2
+      ],
+      "opportunity_score": 63.0384076681708,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-08-05",
+      "date": "2025207",
+      "actual_numbers": [
+        2,
+        5,
+        5
+      ],
+      "opportunity_score": 63.027763643070806,
+      "full_hit_top10": false,
+      "hit_in_top10": 2
+    },
+    {
+      "period": "2024-11-18",
+      "date": "2024309",
+      "actual_numbers": [
+        5,
+        3,
+        9
+      ],
+      "opportunity_score": 63.02666368622399,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-12",
+      "date": "2025092",
+      "actual_numbers": [
+        3,
+        1,
+        7
+      ],
+      "opportunity_score": 63.011892687299444,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-11-18",
+      "date": "2025308",
+      "actual_numbers": [
+        4,
+        4,
+        8
+      ],
+      "opportunity_score": 62.99996928845821,
+      "full_hit_top10": false,
+      "hit_in_top10": 2
+    },
+    {
+      "period": "2025-09-28",
+      "date": "2025261",
+      "actual_numbers": [
+        7,
+        5,
+        1
+      ],
+      "opportunity_score": 62.998518567371036,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-09-29",
+      "date": "2025262",
+      "actual_numbers": [
+        9,
+        1,
+        4
+      ],
+      "opportunity_score": 62.99833724190991,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-28",
+      "date": "2024319",
+      "actual_numbers": [
+        7,
+        2,
+        6
+      ],
+      "opportunity_score": 62.966022283727426,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-10-05",
+      "date": "2025264",
+      "actual_numbers": [
+        7,
+        3,
+        4
+      ],
+      "opportunity_score": 62.938401932356335,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-14",
+      "date": "2025094",
+      "actual_numbers": [
+        6,
+        4,
+        9
+      ],
+      "opportunity_score": 62.928272697720324,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-21",
+      "date": "2024312",
+      "actual_numbers": [
+        7,
+        5,
+        4
+      ],
+      "opportunity_score": 62.91835118195209,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-02",
+      "date": "2025082",
+      "actual_numbers": [
+        4,
+        1,
+        7
+      ],
+      "opportunity_score": 62.91427354669026,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-10",
+      "date": "2025090",
+      "actual_numbers": [
+        1,
+        5,
+        9
+      ],
+      "opportunity_score": 62.88477614756186,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-03-26",
+      "date": "2025075",
+      "actual_numbers": [
+        7,
+        0,
+        9
+      ],
+      "opportunity_score": 62.85233972022495,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-19",
+      "date": "2024310",
+      "actual_numbers": [
+        6,
+        0,
+        3
+      ],
+      "opportunity_score": 62.83030308940299,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-12-02",
+      "date": "2024323",
+      "actual_numbers": [
+        5,
+        3,
+        6
+      ],
+      "opportunity_score": 62.8234962017384,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-11-17",
+      "date": "2025307",
+      "actual_numbers": [
+        1,
+        6,
+        4
+      ],
+      "opportunity_score": 62.80657803510252,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-03-23",
+      "date": "2025072",
+      "actual_numbers": [
+        2,
+        7,
+        2
+      ],
+      "opportunity_score": 62.8040616936892,
+      "full_hit_top10": false,
+      "hit_in_top10": 2
+    },
+    {
+      "period": "2025-09-16",
+      "date": "2025249",
+      "actual_numbers": [
+        9,
+        5,
+        2
+      ],
+      "opportunity_score": 62.80074254148308,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-12-06",
+      "date": "2024327",
+      "actual_numbers": [
+        2,
+        8,
+        0
+      ],
+      "opportunity_score": 62.79768758582726,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-09-30",
+      "date": "2025263",
+      "actual_numbers": [
+        3,
+        9,
+        9
+      ],
+      "opportunity_score": 62.7932791305668,
+      "full_hit_top10": false,
+      "hit_in_top10": 2
+    },
+    {
+      "period": "2025-09-15",
+      "date": "2025248",
+      "actual_numbers": [
+        5,
+        2,
+        6
+      ],
+      "opportunity_score": 62.78899899843439,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-30",
+      "date": "2024321",
+      "actual_numbers": [
+        5,
+        4,
+        2
+      ],
+      "opportunity_score": 62.78180802979496,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-11-15",
+      "date": "2025305",
+      "actual_numbers": [
+        3,
+        1,
+        0
+      ],
+      "opportunity_score": 62.7780948605645,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-02",
+      "date": "2024293",
+      "actual_numbers": [
+        5,
+        2,
+        1
+      ],
+      "opportunity_score": 62.76527464349029,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-24",
+      "date": "2024315",
+      "actual_numbers": [
+        8,
+        0,
+        2
+      ],
+      "opportunity_score": 62.73463091443679,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-22",
+      "date": "2024313",
+      "actual_numbers": [
+        0,
+        9,
+        5
+      ],
+      "opportunity_score": 62.707591228415765,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-11",
+      "date": "2025091",
+      "actual_numbers": [
+        1,
+        3,
+        5
+      ],
+      "opportunity_score": 62.705410643955815,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-06",
+      "date": "2025086",
+      "actual_numbers": [
+        3,
+        8,
+        8
+      ],
+      "opportunity_score": 62.69136440540618,
+      "full_hit_top10": false,
+      "hit_in_top10": 2
+    },
+    {
+      "period": "2025-07-24",
+      "date": "2025195",
+      "actual_numbers": [
+        9,
+        8,
+        0
+      ],
+      "opportunity_score": 62.68876476130641,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-12-04",
+      "date": "2024325",
+      "actual_numbers": [
+        1,
+        5,
+        8
+      ],
+      "opportunity_score": 62.679492535471915,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-07-25",
+      "date": "2025196",
+      "actual_numbers": [
+        7,
+        3,
+        4
+      ],
+      "opportunity_score": 62.67458965919173,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2024-11-25",
+      "date": "2024316",
+      "actual_numbers": [
+        7,
+        8,
+        9
+      ],
+      "opportunity_score": 62.66639494236531,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    },
+    {
+      "period": "2025-04-17",
+      "date": "2025097",
+      "actual_numbers": [
+        5,
+        4,
+        2
+      ],
+      "opportunity_score": 62.664025587409625,
+      "full_hit_top10": true,
+      "hit_in_top10": 3
+    }
+  ]
+}

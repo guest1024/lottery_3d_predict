@@ -1,0 +1,168 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}特征提取 - {{ period.period }} - 3D彩票预测系统{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 20px; color: #303133;">
+    <a href="{% url 'lottery:period_detail' period.period %}" style="text-decoration: none; color: #409eff;">←</a>
+    特征提取: {{ period.period }}
+</h1>
+
+{% if error %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p>{{ error }}</p>
+        <a href="{% url 'lottery:history_list' %}" class="btn btn-primary" style="margin-top: 16px;">返回列表</a>
+    </div>
+</div>
+{% else %}
+
+<!-- Tab导航 -->
+<div class="tabs">
+    <div class="tab-buttons">
+        <button class="tab-btn">输入序列</button>
+        <button class="tab-btn">数字频率</button>
+        <button class="tab-btn">和值分布</button>
+        <button class="tab-btn">形态统计</button>
+    </div>
+</div>
+
+<!-- Tab 1: 输入序列 -->
+<div class="tab-content">
+    <div class="card">
+        <div class="card-title">训练输入序列（前30期）</div>
+        <p style="color: #606266; margin-bottom: 15px;">
+            该期预测时模型的输入特征，形状为 [30, 3]
+        </p>
+        <div style="max-height: 500px; overflow-y: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>期号</th>
+                        <th>号码序列</th>
+                        <th>形态</th>
+                        <th>和值</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for period_obj, seq in history_30 %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ period_obj.period }}</td>
+                        <td>
+                            <div class="lottery-balls">
+                                <div class="ball" style="width: 28px; height: 28px; font-size: 13px;">{{ seq.0 }}</div>
+                                <div class="ball" style="width: 28px; height: 28px; font-size: 13px;">{{ seq.1 }}</div>
+                                <div class="ball" style="width: 28px; height: 28px; font-size: 13px;">{{ seq.2 }}</div>
+                            </div>
+                        </td>
+                        <td><span class="tag tag-info">{{ period_obj.shape }}</span></td>
+                        <td>{{ period_obj.sum_value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tab 2: 数字频率 -->
+<div class="tab-content">
+    <div class="card">
+        <div class="card-title">数字出现频率（0-9）</div>
+        <p style="color: #606266; margin-bottom: 15px;">
+            前30期中各数字出现的次数统计
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+            {% for digit, count in digit_freq.items %}
+            <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px;">
+                <div class="ball" style="margin: 0 auto 10px;">{{ digit }}</div>
+                <div style="font-size: 24px; font-weight: bold; color: #303133;">{{ count }}</div>
+                <div style="color: #909399; font-size: 13px;">次</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #f0f9ff; border-radius: 4px;">
+            <p style="color: #606266;">
+                <strong>特征说明:</strong> 数字频率特征可以反映出历史趋势，模型会学习哪些数字在最近时段出现更频繁。
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Tab 3: 和值分布 -->
+<div class="tab-content">
+    <div class="card">
+        <div class="card-title">和值统计</div>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-label">最小值</div>
+                <div class="stat-value">{{ sum_values.min }}</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">平均值</div>
+                <div class="stat-value">{{ sum_values.avg|floatformat:1 }}</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">最大值</div>
+                <div class="stat-value">{{ sum_values.max }}</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 4px;">
+            <p style="color: #606266;">
+                <strong>特征说明:</strong> 和值范围0-27，理论平均值为13.5。和值特征可以帮助模型理解号码组合的整体分布。
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Tab 4: 形态统计 -->
+<div class="tab-content">
+    <div class="card">
+        <div class="card-title">形态分布</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            {% for shape, data in shape_freq.items %}
+            <div style="text-align: center; padding: 30px; background: #f5f7fa; border-radius: 8px;">
+                <div style="font-size: 32px; margin-bottom: 10px;">
+                    {% if shape == '豹子' %}🔥{% elif shape == '组三' %}⚡{% else %}💎{% endif %}
+                </div>
+                <div style="font-size: 18px; color: #303133; margin-bottom: 5px;">{{ shape }}</div>
+                <div style="font-size: 28px; font-weight: bold; color: #409eff;">{{ data.count }}</div>
+                <div style="color: #909399; font-size: 13px;">次 ({{ data.percentage }}%)</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #f0f9ff; border-radius: 4px;">
+            <p style="color: #606266; margin-bottom: 10px;">
+                <strong>形态定义:</strong>
+            </p>
+            <ul style="margin-left: 20px; color: #606266; line-height: 1.8;">
+                <li><strong>豹子:</strong> 三个数字相同，如 [5,5,5]，理论概率1%</li>
+                <li><strong>组三:</strong> 两个数字相同，如 [1,1,2]，理论概率27%</li>
+                <li><strong>组六:</strong> 三个数字都不同，如 [1,2,3]，理论概率72%</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{% url 'lottery:period_detail' period.period %}" class="btn btn-primary">返回期号详情</a>
+    <a href="{% url 'lottery:history_list' %}" class="btn" style="background: #dcdfe6; color: #606266;">返回列表</a>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 在特征提取页添加百分比计算
+document.addEventListener('DOMContentLoaded', () => {
+    // 计算已在模板中处理
+});
+</script>
+{% endblock %}

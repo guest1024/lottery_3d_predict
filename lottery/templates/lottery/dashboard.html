@@ -1,0 +1,372 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}仪表板 - 3D彩票预测系统{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 20px; color: #303133;">📊 预测仪表板</h1>
+
+<!-- Tab导航 -->
+<div class="tabs">
+    <div class="tab-buttons">
+        <button class="tab-btn" data-tab="overview">概览</button>
+        <button class="tab-btn" data-tab="prediction">最新预测</button>
+        <button class="tab-btn" data-tab="backtest">回测结果</button>
+        <button class="tab-btn" data-tab="strategy">投注策略</button>
+        <button class="tab-btn" data-tab="data">数据管理</button>
+    </div>
+</div>
+
+<!-- Tab 1: 概览 -->
+<div class="tab-content" data-content="overview">
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-label">总期数</div>
+            <div class="stat-value">{{ total_periods }}</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-label">最新期号</div>
+            <div class="stat-value">{{ latest_period.period|default:"暂无" }}</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-label">预测记录</div>
+            <div class="stat-value">{{ latest_prediction.id|default:"0" }}</div>
+        </div>
+        <div class="stat-card danger">
+            <div class="stat-label">数据更新</div>
+            <div class="stat-value" style="font-size: 16px;">
+                {% if latest_update %}
+                    {{ latest_update.created_at|date:"Y-m-d H:i" }}
+                {% else %}
+                    未更新
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if latest_period %}
+    <div class="card">
+        <div class="card-title">最新开奖</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="color: #909399; margin-bottom: 10px;">期号: {{ latest_period.period }}</p>
+                <div class="lottery-balls">
+                    <div class="ball">{{ latest_period.digit1 }}</div>
+                    <div class="ball">{{ latest_period.digit2 }}</div>
+                    <div class="ball">{{ latest_period.digit3 }}</div>
+                </div>
+            </div>
+            <div>
+                <p><span class="tag tag-info">形态: {{ latest_period.shape }}</span></p>
+                <p style="margin-top: 8px;"><span class="tag tag-info">和值: {{ latest_period.sum_value }}</span></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-title">最佳策略推荐</div>
+        {% if best_strategy %}
+        <table class="table">
+            <tr>
+                <th>策略名称</th>
+                <th>ROI</th>
+                <th>胜率</th>
+                <th>最大回撤</th>
+                <th>操作</th>
+            </tr>
+            <tr>
+                <td><strong>{{ best_strategy.strategy_name }}</strong></td>
+                <td>
+                    <span class="{% if best_strategy.roi_percentage >= 0 %}tag-success{% else %}tag-danger{% endif %} tag">
+                        {{ best_strategy.roi_percentage|floatformat:2 }}%
+                    </span>
+                </td>
+                <td>{{ best_strategy.win_rate|floatformat:2 }}%</td>
+                <td>{{ best_strategy.max_drawdown|floatformat:2 }}%</td>
+                <td><a href="{% url 'lottery:backtest_detail' best_strategy.pk %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">查看详情</a></td>
+            </tr>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p>暂无回测数据</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tab 2: 最新预测 -->
+<div class="tab-content" data-content="prediction">
+    <div class="card">
+        <div class="card-title">生成新预测</div>
+        <p style="color: #606266; margin-bottom: 15px;">基于最近30期历史数据生成下一期预测</p>
+        <button onclick="generatePrediction()" class="btn btn-primary">🎯 生成预测</button>
+    </div>
+    
+    {% if latest_prediction %}
+    <div class="card">
+        <div class="card-title">最新预测结果</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <p style="color: #909399; margin-bottom: 10px;">预测期号: <strong>{{ latest_prediction.predicted_for_period }}</strong></p>
+                <p style="color: #909399; margin-bottom: 10px;">可信度: 
+                    <span class="{% if latest_prediction.confidence_score >= 0.19 %}tag-success{% elif latest_prediction.confidence_score >= 0.188 %}tag-warning{% else %}tag-info{% endif %} tag">
+                        {{ latest_prediction.confidence_score|floatformat:4 }}
+                    </span>
+                </p>
+                <p style="color: #909399; margin-bottom: 10px;">Top5数字: 
+                    {% for digit in latest_prediction.top5_digits %}
+                        <span class="ball" style="width: 32px; height: 32px; font-size: 14px; margin-right: 5px;">{{ digit }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+            <div>
+                <p style="color: #909399; margin-bottom: 10px;">投注建议: 
+                    {% if latest_prediction.should_bet %}
+                        <span class="tag tag-success">✓ 建议投注</span>
+                    {% else %}
+                        <span class="tag tag-warning">✗ 暂不建议</span>
+                    {% endif %}
+                </p>
+                <p style="color: #909399; margin-bottom: 10px;">建议金额: <strong>¥{{ latest_prediction.bet_amount }}</strong></p>
+                <p style="color: #909399; font-size: 13px;">预测时间: {{ latest_prediction.created_at|date:"Y-m-d H:i:s" }}</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="empty-state">
+            <div class="empty-state-icon">🎯</div>
+            <p>暂无预测记录，点击上方按钮生成预测</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tab 3: 回测结果 -->
+<div class="tab-content" data-content="backtest">
+    <div class="card">
+        <div class="card-title">历史回测对比</div>
+        {% if backtest_results %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>策略名称</th>
+                    <th>测试期数</th>
+                    <th>投注期数</th>
+                    <th>起始资金</th>
+                    <th>最终资金</th>
+                    <th>ROI</th>
+                    <th>胜率</th>
+                    <th>最大回撤</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for backtest in backtest_results %}
+                <tr>
+                    <td><strong>{{ backtest.strategy_name }}</strong></td>
+                    <td>{{ backtest.total_periods }}</td>
+                    <td>{{ backtest.bet_periods }}</td>
+                    <td>¥{{ backtest.starting_capital|floatformat:0 }}</td>
+                    <td>¥{{ backtest.final_capital|floatformat:0 }}</td>
+                    <td>
+                        <span class="{% if backtest.roi_percentage >= 0 %}tag-success{% else %}tag-danger{% endif %} tag">
+                            {{ backtest.roi_percentage|floatformat:2 }}%
+                        </span>
+                    </td>
+                    <td>{{ backtest.win_rate|floatformat:2 }}%</td>
+                    <td>{{ backtest.max_drawdown|floatformat:2 }}%</td>
+                    <td><a href="{% url 'lottery:backtest_detail' backtest.pk %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">详情</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📈</div>
+            <p>暂无回测数据</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tab 4: 投注策略 -->
+<div class="tab-content" data-content="strategy">
+    <div class="card">
+        <div class="card-title">动态投注策略说明</div>
+        <div style="color: #606266; line-height: 1.8;">
+            <h3 style="margin: 15px 0; color: #303133;">✅ Top 10% 策略（推荐）</h3>
+            <ul style="margin-left: 20px;">
+                <li>只在可信度Top 10%的期数投注</li>
+                <li>历史ROI: -3.35%（远优于全投注-43.83%）</li>
+                <li>胜率: 15%（vs 全投注8.5%）</li>
+                <li>最大回撤: 6.21%</li>
+                <li>投注频率: 约10%期数（200期投20期）</li>
+            </ul>
+            
+            <h3 style="margin: 15px 0; color: #303133;">🎯 投注流程</h3>
+            <ol style="margin-left: 20px;">
+                <li>系统自动计算每期可信度分数</li>
+                <li>只在可信度≥阈值时给出投注建议</li>
+                <li>推荐组合（组三+组六），约20-30注</li>
+                <li>建议金额根据可信度动态调整</li>
+            </ol>
+            
+            <h3 style="margin: 15px 0; color: #303133;">⚠️ 风险提示</h3>
+            <ul style="margin-left: 20px; color: #f56c6c;">
+                <li>彩票属于负期望值游戏，即使最优策略仍会亏损</li>
+                <li>历史表现不代表未来收益</li>
+                <li>仅供娱乐参考，请理性投注</li>
+                <li>不要用生活必需资金参与</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Tab 5: 数据管理 -->
+<div class="tab-content" data-content="data">
+    <div class="card">
+        <div class="card-title">数据更新</div>
+        <p style="color: #606266; margin-bottom: 15px;">爬取最新开奖数据并自动去重导入数据库</p>
+        <button onclick="crawlLatestData()" class="btn btn-success">🕷️ 爬取最新数据</button>
+        <div id="crawl-status" style="margin-top: 15px;"></div>
+    </div>
+    
+    <div class="card">
+        <div class="card-title">数据统计</div>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-label">数据库总期数</div>
+                <div class="stat-value">{{ total_periods }}</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">最新期号</div>
+                <div class="stat-value">{{ latest_period.period|default:"N/A" }}</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">最新日期</div>
+                <div class="stat-value" style="font-size: 18px;">{{ latest_period.date|date:"Y-m-d"|default:"N/A" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    {% if update_logs %}
+    <div class="card">
+        <div class="card-title">更新日志</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>类型</th>
+                    <th>新增</th>
+                    <th>更新</th>
+                    <th>状态</th>
+                    <th>消息</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in update_logs %}
+                <tr>
+                    <td>{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ log.update_type }}</td>
+                    <td>{{ log.periods_added }}</td>
+                    <td>{{ log.periods_updated }}</td>
+                    <td>
+                        <span class="{% if log.status == 'success' %}tag-success{% else %}tag-danger{% endif %} tag">
+                            {{ log.status }}
+                        </span>
+                    </td>
+                    <td>{{ log.message|truncatewords:10 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 爬取最新数据
+async function crawlLatestData() {
+    const btn = event.target;
+    const statusDiv = document.getElementById('crawl-status');
+    
+    btn.disabled = true;
+    btn.textContent = '爬取中...';
+    statusDiv.innerHTML = '<p style="color: #409eff;">🕷️ 正在爬取数据，请稍候...</p>';
+    
+    try {
+        const response = await fetch("{% url 'lottery:api_crawl' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            statusDiv.innerHTML = `
+                <div style="color: #67c23a; padding: 12px; background: #f0f9ff; border-radius: 4px;">
+                    <p><strong>✓ ${data.message}</strong></p>
+                    <p style="margin-top: 8px; font-size: 14px;">
+                        新增: ${data.added}期 | 更新: ${data.updated}期 | 总计: ${data.total}期
+                    </p>
+                </div>
+            `;
+            
+            // 3秒后刷新页面
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        } else {
+            statusDiv.innerHTML = `<p style="color: #f56c6c;">✗ ${data.message}</p>`;
+        }
+    } catch (error) {
+        statusDiv.innerHTML = `<p style="color: #f56c6c;">✗ 请求失败: ${error.message}</p>`;
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🕷️ 爬取最新数据';
+    }
+}
+
+// 生成预测
+async function generatePrediction() {
+    const btn = event.target;
+    
+    btn.disabled = true;
+    btn.textContent = '生成中...';
+    
+    try {
+        const response = await fetch("{% url 'lottery:api_predict' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            showMessage(data.message, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showMessage(data.message, 'error');
+        }
+    } catch (error) {
+        showMessage(`请求失败: ${error.message}`, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🎯 生成预测';
+    }
+}
+</script>
+{% endblock %}

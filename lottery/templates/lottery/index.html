@@ -1,0 +1,7 @@
+{% extends 'lottery/base.html' %}
+
+{% block content %}
+<script>
+    window.location.href = "{% url 'lottery:dashboard' %}";
+</script>
+{% endblock %}

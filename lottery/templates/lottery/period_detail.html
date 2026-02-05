@@ -1,0 +1,118 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}期号 {{ period.period }} - 3D彩票预测系统{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 20px; color: #303133;">
+    <a href="{% url 'lottery:history_list' %}" style="text-decoration: none; color: #409eff;">←</a>
+    期号详情: {{ period.period }}
+</h1>
+
+<div class="card">
+    <div class="card-title">开奖信息</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div>
+            <p style="color: #909399; margin-bottom: 15px;"><strong style="color: #303133;">期号:</strong> {{ period.period }}</p>
+            <p style="color: #909399; margin-bottom: 15px;"><strong style="color: #303133;">日期:</strong> {{ period.date|date:"Y年m月d日" }}</p>
+            <div style="margin: 20px 0;">
+                <p style="color: #909399; margin-bottom: 10px;"><strong style="color: #303133;">开奖号码:</strong></p>
+                <div class="lottery-balls">
+                    <div class="ball">{{ period.digit1 }}</div>
+                    <div class="ball">{{ period.digit2 }}</div>
+                    <div class="ball">{{ period.digit3 }}</div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <p style="color: #909399; margin-bottom: 15px;">
+                <strong style="color: #303133;">形态:</strong> 
+                <span class="tag {% if period.shape == '豹子' %}tag-danger{% elif period.shape == '组三' %}tag-warning{% else %}tag-info{% endif %}">
+                    {{ period.shape }}
+                </span>
+            </p>
+            <p style="color: #909399; margin-bottom: 15px;">
+                <strong style="color: #303133;">和值:</strong> 
+                <span class="tag tag-info">{{ period.sum_value }}</span>
+            </p>
+            <p style="color: #909399; margin-bottom: 15px;">
+                <strong style="color: #303133;">奇偶比:</strong> 
+                {{ period.numbers|slice:":3"|join:"" }}
+            </p>
+        </div>
+    </div>
+</div>
+
+{% if history_30 %}
+<div class="card">
+    <div class="card-title">前30期历史（用于模型输入）</div>
+    <p style="color: #606266; margin-bottom: 15px;">该期预测时使用的历史序列</p>
+    <div style="max-height: 400px; overflow-y: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>期号</th>
+                    <th>号码</th>
+                    <th>形态</th>
+                    <th>和值</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hist in history_30 %}
+                <tr>
+                    <td>{{ hist.period }}</td>
+                    <td>
+                        <div class="lottery-balls">
+                            <div class="ball" style="width: 28px; height: 28px; font-size: 13px;">{{ hist.digit1 }}</div>
+                            <div class="ball" style="width: 28px; height: 28px; font-size: 13px;">{{ hist.digit2 }}</div>
+                            <div class="ball" style="width: 28px; height: 28px; font-size: 13px;">{{ hist.digit3 }}</div>
+                        </div>
+                    </td>
+                    <td><span class="tag tag-info">{{ hist.shape }}</span></td>
+                    <td>{{ hist.sum_value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if predictions %}
+<div class="card">
+    <div class="card-title">预测记录</div>
+    {% for pred in predictions %}
+    <div style="border: 1px solid #ebeef5; border-radius: 4px; padding: 15px; margin-bottom: 15px;">
+        <p style="color: #909399; margin-bottom: 10px;">
+            <strong>预测期号:</strong> {{ pred.predicted_for_period }}
+        </p>
+        <p style="color: #909399; margin-bottom: 10px;">
+            <strong>可信度:</strong> 
+            <span class="tag {% if pred.confidence_score >= 0.19 %}tag-success{% elif pred.confidence_score >= 0.188 %}tag-warning{% else %}tag-info{% endif %}">
+                {{ pred.confidence_score|floatformat:4 }}
+            </span>
+        </p>
+        <p style="color: #909399; margin-bottom: 10px;">
+            <strong>Top5数字:</strong>
+            {% for digit in pred.top5_digits %}
+                <span class="ball" style="width: 28px; height: 28px; font-size: 13px; margin-right: 5px;">{{ digit }}</span>
+            {% endfor %}
+        </p>
+        <p style="color: #909399;">
+            <strong>投注建议:</strong>
+            {% if pred.should_bet %}
+                <span class="tag tag-success">✓ 建议投注 (¥{{ pred.bet_amount }})</span>
+            {% else %}
+                <span class="tag tag-warning">✗ 暂不建议</span>
+            {% endif %}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="margin-top: 20px;">
+    <a href="{% url 'lottery:feature_extraction' period.period %}" class="btn btn-primary">查看特征提取</a>
+    <a href="{% url 'lottery:history_list' %}" class="btn" style="background: #dcdfe6; color: #606266;">返回列表</a>
+</div>
+
+{% endblock %}

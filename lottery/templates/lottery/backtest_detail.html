@@ -1,0 +1,136 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}回测详情 - {{ backtest.strategy_name }} - 3D彩票预测系统{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 20px; color: #303133;">
+    <a href="{% url 'lottery:dashboard' %}" style="text-decoration: none; color: #409eff;">←</a>
+    回测详情: {{ backtest.strategy_name }}
+</h1>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">起始资金</div>
+        <div class="stat-value">¥{{ backtest.starting_capital|floatformat:0 }}</div>
+    </div>
+    <div class="stat-card {% if backtest.final_capital >= backtest.starting_capital %}success{% else %}danger{% endif %}">
+        <div class="stat-label">最终资金</div>
+        <div class="stat-value">¥{{ backtest.final_capital|floatformat:0 }}</div>
+    </div>
+    <div class="stat-card {% if backtest.total_profit >= 0 %}success{% else %}danger{% endif %}">
+        <div class="stat-label">总收益</div>
+        <div class="stat-value">¥{{ backtest.total_profit|floatformat:0 }}</div>
+    </div>
+    <div class="stat-card {% if backtest.roi_percentage >= 0 %}success{% else %}danger{% endif %}">
+        <div class="stat-label">ROI</div>
+        <div class="stat-value">{{ backtest.roi_percentage|floatformat:2 }}%</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">回测配置</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        <div>
+            <p style="color: #909399; margin-bottom: 8px;"><strong>测试期数:</strong> {{ backtest.total_periods }}</p>
+            <p style="color: #909399; margin-bottom: 8px;"><strong>投注期数:</strong> {{ backtest.bet_periods }}</p>
+            <p style="color: #909399;"><strong>跳过期数:</strong> {{ backtest.skip_periods }}</p>
+        </div>
+        <div>
+            <p style="color: #909399; margin-bottom: 8px;"><strong>开始期号:</strong> {{ backtest.start_period }}</p>
+            <p style="color: #909399; margin-bottom: 8px;"><strong>结束期号:</strong> {{ backtest.end_period }}</p>
+            <p style="color: #909399;"><strong>创建时间:</strong> {{ backtest.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+        <div>
+            <p style="color: #909399; margin-bottom: 8px;"><strong>胜率:</strong> {{ backtest.win_rate|floatformat:2 }}%</p>
+            <p style="color: #909399; margin-bottom: 8px;"><strong>最大回撤:</strong> {{ backtest.max_drawdown|floatformat:2 }}%</p>
+            <p style="color: #909399;"><strong>盈利期数:</strong> {{ backtest.win_periods }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">投入产出</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px;">
+            <div style="color: #909399; margin-bottom: 8px;">总投入</div>
+            <div style="font-size: 24px; font-weight: bold; color: #e6a23c;">¥{{ backtest.total_invested|floatformat:0 }}</div>
+        </div>
+        <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px;">
+            <div style="color: #909399; margin-bottom: 8px;">总奖金</div>
+            <div style="font-size: 24px; font-weight: bold; color: #67c23a;">¥{{ backtest.total_prizes|floatformat:0 }}</div>
+        </div>
+        <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px;">
+            <div style="color: #909399; margin-bottom: 8px;">净收益</div>
+            <div style="font-size: 24px; font-weight: bold; color: {% if backtest.total_profit >= 0 %}#67c23a{% else %}#f56c6c{% endif %};">
+                ¥{{ backtest.total_profit|floatformat:0 }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">资金曲线</div>
+    <canvas id="capitalChart" style="max-height: 400px;"></canvas>
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{% url 'lottery:dashboard' %}" class="btn btn-primary">返回仪表板</a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+const capitalHistory = {{ capital_history|safe }};
+
+const ctx = document.getElementById('capitalChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: capitalHistory.map((_, i) => i),
+        datasets: [{
+            label: '资金（¥）',
+            data: capitalHistory,
+            borderColor: '#409eff',
+            backgroundColor: 'rgba(64, 158, 255, 0.1)',
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return '资金: ¥' + context.parsed.y.toFixed(0);
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                ticks: {
+                    callback: function(value) {
+                        return '¥' + value.toFixed(0);
+                    }
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: '期数'
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

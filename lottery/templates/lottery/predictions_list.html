@@ -1,0 +1,99 @@
+{% extends 'lottery/base.html' %}
+
+{% block title %}预测记录 - 3D彩票预测系统{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 20px; color: #303133;">🎯 预测记录</h1>
+
+<div class="card">
+    <!-- 筛选栏 -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <a href="{% url 'lottery:predictions_list' %}" 
+           class="btn {% if not should_bet %}btn-primary{% else %}{% endif %}"
+           style="{% if should_bet %}background: #dcdfe6; color: #606266;{% endif %}">
+            全部
+        </a>
+        <a href="{% url 'lottery:predictions_list' %}?should_bet=true" 
+           class="btn {% if should_bet == 'true' %}btn-primary{% else %}{% endif %}"
+           style="{% if should_bet != 'true' %}background: #dcdfe6; color: #606266;{% endif %}">
+            ✓ 建议投注
+        </a>
+        <a href="{% url 'lottery:predictions_list' %}?should_bet=false" 
+           class="btn {% if should_bet == 'false' %}btn-primary{% else %}{% endif %}"
+           style="{% if should_bet != 'false' %}background: #dcdfe6; color: #606266;{% endif %}">
+            ✗ 不建议投注
+        </a>
+    </div>
+    
+    <!-- 预测列表 -->
+    {% if page_obj.object_list %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>预测期号</th>
+                <th>Top5数字</th>
+                <th>可信度</th>
+                <th>投注建议</th>
+                <th>建议金额</th>
+                <th>预测时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pred in page_obj %}
+            <tr>
+                <td><strong>{{ pred.predicted_for_period }}</strong></td>
+                <td>
+                    {% for digit in pred.top5_digits %}
+                        <span class="ball" style="width: 28px; height: 28px; font-size: 13px; margin-right: 5px;">{{ digit }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <span class="tag {% if pred.confidence_score >= 0.19 %}tag-success{% elif pred.confidence_score >= 0.188 %}tag-warning{% else %}tag-info{% endif %}">
+                        {{ pred.confidence_score|floatformat:4 }}
+                    </span>
+                </td>
+                <td>
+                    {% if pred.should_bet %}
+                        <span class="tag tag-success">✓ 建议投注</span>
+                    {% else %}
+                        <span class="tag tag-warning">✗ 不建议</span>
+                    {% endif %}
+                </td>
+                <td>¥{{ pred.bet_amount }}</td>
+                <td>{{ pred.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- 分页 -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if should_bet %}&should_bet={{ should_bet }}{% endif %}" class="page-item">首页</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if should_bet %}&should_bet={{ should_bet }}{% endif %}" class="page-item">上一页</a>
+        {% endif %}
+        
+        <span class="page-item active">{{ page_obj.number }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if should_bet %}&should_bet={{ should_bet }}{% endif %}" class="page-item">下一页</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if should_bet %}&should_bet={{ should_bet }}{% endif %}" class="page-item">末页</a>
+        {% endif %}
+        
+        <span style="padding: 8px 12px; color: #909399;">
+            共 {{ page_obj.paginator.count }} 条
+        </span>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🎯</div>
+        <p>暂无预测记录</p>
+        <a href="{% url 'lottery:dashboard' %}" class="btn btn-primary" style="margin-top: 16px;">前往仪表板生成预测</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
