@@ -3,11 +3,105 @@
 {% block title %}预测记录 - 3D彩票预测系统{% endblock %}
 
 {% block content %}
-<h1 style="margin-bottom: 20px; color: #303133;">🎯 预测记录</h1>
+<h1 style="margin-bottom: 20px; color: #303133;">🎯 预测记录 & 投注建议</h1>
 
+<!-- 最新投注建议卡片 -->
+<div class="card" style="margin-bottom: 20px; border-left: 4px solid #409eff;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="margin: 0; color: #303133; font-size: 18px;">📊 今日投注建议</h2>
+        <button onclick="loadLatestRecommendation()" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">
+            🔄 刷新
+        </button>
+    </div>
+    
+    <div id="loading-recommendation" style="text-align: center; padding: 20px; color: #909399;">
+        加载中...
+    </div>
+    
+    <div id="recommendation-content" style="display: none;">
+        <!-- 状态Banner -->
+        <div id="status-banner" style="padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center;">
+                <div id="status-icon" style="font-size: 40px; margin-right: 16px;"></div>
+                <div style="flex: 1;">
+                    <h3 id="status-title" style="margin: 0 0 6px 0; font-size: 18px; font-weight: bold;"></h3>
+                    <p id="status-reason" style="margin: 0; color: #606266; font-size: 14px; line-height: 1.5;"></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详细信息 - 响应式网格 -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div style="padding: 12px; background: #f5f7fa; border-radius: 6px; border-left: 3px solid #409eff;">
+                <div style="font-size: 12px; color: #909399; margin-bottom: 4px;">预测期号</div>
+                <div id="rec-period" style="font-size: 16px; font-weight: bold; color: #303133;"></div>
+            </div>
+            <div style="padding: 12px; background: #f5f7fa; border-radius: 6px; border-left: 3px solid #67c23a;">
+                <div style="font-size: 12px; color: #909399; margin-bottom: 4px;">置信度评分</div>
+                <div id="rec-confidence" style="font-size: 16px; font-weight: bold; color: #303133;"></div>
+            </div>
+            <div style="padding: 12px; background: #f5f7fa; border-radius: 6px; border-left: 3px solid #e6a23c;">
+                <div style="font-size: 12px; color: #909399; margin-bottom: 4px;">百分位排名</div>
+                <div id="rec-percentile" style="font-size: 16px; font-weight: bold; color: #303133;"></div>
+            </div>
+            <div style="padding: 12px; background: #f5f7fa; border-radius: 6px; border-left: 3px solid #909399;">
+                <div style="font-size: 12px; color: #909399; margin-bottom: 4px;">策略</div>
+                <div id="rec-strategy" style="font-size: 16px; font-weight: bold; color: #303133;"></div>
+            </div>
+        </div>
+        
+        <!-- Top5预测组选（改为显示组合而非单个数字） -->
+        <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+            <h4 style="margin: 0 0 12px 0; font-size: 15px; font-weight: bold; opacity: 0.9;">🎲 Top5 推荐组选组合</h4>
+            <div id="top-combos-container" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        </div>
+        
+        <!-- 投注详情（如果建议投注） -->
+        <div id="betting-details" style="display: none; margin-top: 20px;">
+            <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin-bottom: 16px; border-left: 4px solid #409eff;">
+                <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    <div>
+                        <span style="font-size: 13px; color: #606266;">总注数</span>
+                        <strong id="bet-count" style="font-size: 20px; color: #409eff; margin-left: 8px;"></strong>
+                        <span style="font-size: 13px; color: #909399;">注</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 13px; color: #606266;">总成本</span>
+                        <strong id="total-cost" style="font-size: 20px; color: #f56c6c; margin-left: 8px;"></strong>
+                        <span style="font-size: 13px; color: #909399;">元</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #606266;">💰 详细投注组合（前10组）</h4>
+            <div style="overflow-x: auto;">
+                <table class="table" style="font-size: 13px; min-width: 600px;">
+                    <thead style="background: #f5f7fa;">
+                        <tr>
+                            <th style="width: 50px; text-align: center;">序号</th>
+                            <th style="min-width: 120px;">组合</th>
+                            <th style="width: 80px; text-align: center;">类型</th>
+                            <th style="width: 80px; text-align: center;">概率</th>
+                            <th style="width: 70px; text-align: center;">注数</th>
+                            <th style="width: 80px; text-align: center;">成本</th>
+                            <th style="width: 80px; text-align: center;">奖金</th>
+                        </tr>
+                    </thead>
+                    <tbody id="combinations-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div id="recommendation-error" style="display: none; padding: 20px; text-align: center; color: #f56c6c;"></div>
+</div>
+
+<!-- 历史预测记录 -->
 <div class="card">
+    <h2 style="margin: 0 0 16px 0; color: #303133; font-size: 18px;">📜 历史预测记录</h2>
+    
     <!-- 筛选栏 -->
-    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
         <a href="{% url 'lottery:predictions_list' %}" 
            class="btn {% if not should_bet %}btn-primary{% else %}{% endif %}"
            style="{% if should_bet %}background: #dcdfe6; color: #606266;{% endif %}">
@@ -27,48 +121,76 @@
     
     <!-- 预测列表 -->
     {% if page_obj.object_list %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>预测期号</th>
-                <th>Top5数字</th>
-                <th>可信度</th>
-                <th>投注建议</th>
-                <th>建议金额</th>
-                <th>预测时间</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pred in page_obj %}
-            <tr>
-                <td><strong>{{ pred.predicted_for_period }}</strong></td>
-                <td>
-                    {% for digit in pred.top5_digits %}
-                        <span class="ball" style="width: 28px; height: 28px; font-size: 13px; margin-right: 5px;">{{ digit }}</span>
-                    {% endfor %}
-                </td>
-                <td>
-                    <span class="tag {% if pred.confidence_score >= 0.19 %}tag-success{% elif pred.confidence_score >= 0.188 %}tag-warning{% else %}tag-info{% endif %}">
-                        {{ pred.confidence_score|floatformat:4 }}
-                    </span>
-                </td>
-                <td>
-                    {% if pred.should_bet %}
-                        <span class="tag tag-success">✓ 建议投注</span>
-                    {% else %}
-                        <span class="tag tag-warning">✗ 不建议</span>
-                    {% endif %}
-                </td>
-                <td>¥{{ pred.bet_amount }}</td>
-                <td>{{ pred.created_at|date:"Y-m-d H:i" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div style="overflow-x: auto;">
+        <table class="table" style="min-width: 800px;">
+            <thead>
+                <tr>
+                    <th style="min-width: 100px;">预测期号</th>
+                    <th style="min-width: 180px;">Top推荐组合</th>
+                    <th style="width: 90px;">置信度</th>
+                    <th style="width: 90px;">百分位</th>
+                    <th style="width: 100px;">投注建议</th>
+                    <th style="width: 80px;">投注额</th>
+                    <th style="width: 120px;">预测时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pred in page_obj %}
+                <tr>
+                    <td><strong>{{ pred.predicted_for_period }}</strong></td>
+                    <td>
+                        {% if pred.betting_combinations and pred.betting_combinations|length > 0 %}
+                            {% for combo in pred.betting_combinations|slice:":3" %}
+                                <span class="tag tag-info" style="margin: 2px; font-family: monospace; font-size: 12px;">
+                                    {{ combo.numbers|join:"-" }}
+                                </span>
+                            {% endfor %}
+                        {% elif pred.top5_digits %}
+                            {% for digit in pred.top5_digits|slice:":3" %}
+                                <span class="ball" style="width: 24px; height: 24px; font-size: 12px; margin-right: 4px;">{{ digit }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span style="color: #909399;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="tag {% if pred.confidence_score >= 18 %}tag-success{% elif pred.confidence_score >= 17.5 %}tag-warning{% else %}tag-info{% endif %}">
+                            {{ pred.confidence_score|floatformat:2 }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if pred.percentile_rank %}
+                            <span class="tag {% if pred.percentile_rank >= 95 %}tag-success{% elif pred.percentile_rank >= 90 %}tag-warning{% else %}tag-info{% endif %}">
+                                {{ pred.percentile_rank|floatformat:1 }}%
+                            </span>
+                        {% else %}
+                            <span style="color: #909399;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if pred.recommendation == 'bet' %}
+                            <span class="tag tag-success">✓ 建议</span>
+                        {% else %}
+                            <span class="tag tag-warning">✗ 不建议</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if pred.total_cost > 0 %}
+                            <strong style="color: #f56c6c;">¥{{ pred.total_cost }}</strong>
+                        {% else %}
+                            <span style="color: #909399;">-</span>
+                        {% endif %}
+                    </td>
+                    <td style="color: #909399; font-size: 13px;">{{ pred.created_at|date:"m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     
     <!-- 分页 -->
     {% if page_obj.has_other_pages %}
-    <div class="pagination">
+    <div class="pagination" style="margin-top: 16px;">
         {% if page_obj.has_previous %}
             <a href="?page=1{% if should_bet %}&should_bet={{ should_bet }}{% endif %}" class="page-item">首页</a>
             <a href="?page={{ page_obj.previous_page_number }}{% if should_bet %}&should_bet={{ should_bet }}{% endif %}" class="page-item">上一页</a>
@@ -95,5 +217,152 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+// 加载最新投注建议
+async function loadLatestRecommendation() {
+    const loading = document.getElementById('loading-recommendation');
+    const content = document.getElementById('recommendation-content');
+    const error = document.getElementById('recommendation-error');
+    
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    error.style.display = 'none';
+    
+    try {
+        const response = await fetch('/api/betting/latest-recommendation/');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayRecommendation(data.recommendation);
+            content.style.display = 'block';
+        } else {
+            error.textContent = data.message || '暂无建议数据';
+            error.style.display = 'block';
+        }
+    } catch (e) {
+        error.textContent = '加载失败: ' + e.message;
+        error.style.display = 'block';
+    } finally {
+        loading.style.display = 'none';
+    }
+}
+
+function displayRecommendation(rec) {
+    const isBet = rec.recommendation === 'bet';
+    
+    // 状态Banner
+    const banner = document.getElementById('status-banner');
+    const icon = document.getElementById('status-icon');
+    const title = document.getElementById('status-title');
+    const reason = document.getElementById('status-reason');
+    
+    if (isBet) {
+        banner.style.background = 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)';
+        banner.style.border = '2px solid #67c23a';
+        banner.style.boxShadow = '0 4px 12px rgba(103, 194, 58, 0.2)';
+        icon.textContent = '✅';
+        title.textContent = '建议投注';
+        title.style.color = '#529b2e';
+    } else {
+        banner.style.background = 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+        banner.style.border = '2px solid #e6a23c';
+        banner.style.boxShadow = '0 4px 12px rgba(230, 162, 60, 0.2)';
+        icon.textContent = '⚠️';
+        title.textContent = '不建议投注';
+        title.style.color = '#b88230';
+    }
+    reason.textContent = rec.reason || '等待更高置信度时机';
+    
+    // 详细信息
+    document.getElementById('rec-period').textContent = rec.next_period;
+    document.getElementById('rec-confidence').textContent = rec.confidence_score.toFixed(2);
+    document.getElementById('rec-percentile').textContent = rec.percentile_rank ? rec.percentile_rank.toFixed(1) + '%' : '-';
+    document.getElementById('rec-strategy').textContent = rec.strategy.toUpperCase();
+    
+    // Top推荐组选组合（改为显示组合而非单个数字）
+    const combosContainer = document.getElementById('top-combos-container');
+    combosContainer.innerHTML = '';
+    
+    if (rec.betting_combinations && rec.betting_combinations.length > 0) {
+        // 显示Top5组合
+        rec.betting_combinations.slice(0, 5).forEach((combo, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); min-width: 140px;';
+            
+            const numbersStr = combo.numbers.join(' - ');
+            const comboType = combo.type === 'group6' ? '组选6' : '组选3';
+            const prob = combo.probability_score ? (combo.probability_score * 100).toFixed(2) : '0.00';
+            
+            div.innerHTML = `
+                <div style="font-size: 11px; opacity: 0.8; margin-bottom: 4px;">TOP ${idx + 1}</div>
+                <div style="font-size: 18px; font-weight: bold; font-family: monospace; margin-bottom: 4px;">${numbersStr}</div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; opacity: 0.9;">
+                    <span>${comboType}</span>
+                    <span>${prob}%</span>
+                </div>
+            `;
+            combosContainer.appendChild(div);
+        });
+    } else if (rec.top5_digits && rec.top5_probs) {
+        // 降级：仅显示Top5数字
+        rec.top5_digits.forEach((digit, idx) => {
+            const prob = rec.top5_probs[idx];
+            const div = document.createElement('div');
+            div.style.cssText = 'background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); text-align: center; min-width: 80px;';
+            div.innerHTML = `
+                <div style="font-size: 28px; font-weight: bold; margin-bottom: 4px;">${digit}</div>
+                <div style="font-size: 11px; opacity: 0.9;">${(prob * 100).toFixed(1)}%</div>
+            `;
+            combosContainer.appendChild(div);
+        });
+    }
+    
+    // 投注详情
+    const bettingDetails = document.getElementById('betting-details');
+    if (isBet && rec.betting_combinations && rec.betting_combinations.length > 0) {
+        bettingDetails.style.display = 'block';
+        document.getElementById('bet-count').textContent = rec.bet_count;
+        document.getElementById('total-cost').textContent = rec.total_cost;
+        
+        const tbody = document.getElementById('combinations-tbody');
+        tbody.innerHTML = '';
+        
+        // 显示前10个组合
+        rec.betting_combinations.slice(0, 10).forEach((combo, idx) => {
+            const row = tbody.insertRow();
+            const numbersStr = combo.numbers.join(' - ');
+            const comboType = combo.type === 'group6' ? '组选6' : '组选3';
+            const prob = combo.probability_score ? (combo.probability_score * 100).toFixed(3) : '0.000';
+            
+            row.innerHTML = `
+                <td style="text-align: center; font-weight: bold; color: #909399;">${idx + 1}</td>
+                <td>
+                    <span style="font-family: monospace; font-weight: bold; font-size: 14px; color: #303133;">${numbersStr}</span>
+                </td>
+                <td style="text-align: center;">
+                    <span class="tag ${combo.type === 'group6' ? 'tag-info' : 'tag-warning'}" style="font-size: 11px;">${comboType}</span>
+                </td>
+                <td style="text-align: center; color: #909399; font-size: 12px;">${prob}%</td>
+                <td style="text-align: center; font-weight: bold; color: #409eff;">${combo.bet_count}</td>
+                <td style="text-align: center; font-weight: bold; color: #f56c6c;">${combo.cost}元</td>
+                <td style="text-align: center; font-weight: bold; color: #67c23a;">${combo.expected_prize}元</td>
+            `;
+        });
+        
+        if (rec.betting_combinations.length > 10) {
+            const row = tbody.insertRow();
+            row.innerHTML = `<td colspan="7" style="text-align: center; color: #909399; padding: 12px; font-size: 13px;">... 还有 ${rec.betting_combinations.length - 10} 个组合未显示</td>`;
+        }
+    } else {
+        bettingDetails.style.display = 'none';
+    }
+}
+
+// 页面加载时自动加载
+document.addEventListener('DOMContentLoaded', function() {
+    loadLatestRecommendation();
+});
+</script>
 
 {% endblock %}

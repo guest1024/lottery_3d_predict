@@ -1,316 +1,216 @@
-# 📚 3D彩票预测系统 - 文档中心
+# 3D彩票预测系统 - 文档中心
 
-欢迎来到文档中心！本目录包含项目的所有文档，按照用户角色分类组织。
-
----
-
-## 🎯 按角色导航
-
-### 💰 [投资者文档](investor/README.md)
-**适合人群**: 关注投资策略和收益分析的用户
-
-**包含内容**:
-- 投资策略报告（Top1%, Top5%, Top10% 对比）
-- ROI 详细分析
-- 动态投注策略
-- 每日机会评估指南
-
-**核心数据**:
-- Top1% 策略: ROI +405%, 胜率 100%
-- 评分阈值: 58.45 分
-- 历史验证: 7,362 期数据
-
-📂 **文档列表**:
-- [投资策略报告](investor/INVESTMENT_STRATEGY_REPORT.md)
-- [ROI 报告](investor/ROI_REPORT.md)
-- [动态投注策略](investor/DYNAMIC_BETTING_REPORT.md)
-- [每日评估指南](investor/DAILY_CHECK_README.md)
+**版本**: v2.0  
+**更新日期**: 2026-02-06
 
 ---
 
-### 👤 [用户文档](user/README.md)
-**适合人群**: 系统使用者、新手用户
+## 📖 主文档
 
-**包含内容**:
-- 快速开始指南
-- Web 应用使用手册
-- API 接口文档
-- URL 测试清单
+### ⭐ [投注策略指南](BETTING_STRATEGY_GUIDE.md) - 必读
 
-**主要功能**:
-- 首页和仪表板
-- 预测生成
-- 历史记录查询
-- 投资策略分析
+**完整的投注策略说明，包括**:
+- ✅ Top5策略详解（ROI +98.4%）
+- ✅ 回测数据和结论
+- ✅ 使用方法（命令行/Web/定时）
+- ✅ 资金管理建议
+- ✅ 风险提示
 
-📂 **文档列表**:
-- [快速开始](user/QUICK_START.md)
-- [Web 应用手册](user/WEB_APP_README.md)
-- [API 文档](user/API_DOCUMENTATION.md)
-- [URL 测试清单](user/TEST_URLS.md)
+**如果你只想读一个文档，就读这个。**
 
 ---
 
-### 👨‍💻 [开发者文档](developer/README.md)
-**适合人群**: 开发和维护人员
+## 🚀 快速开始
 
-**包含内容**:
-- 系统架构设计
-- 开发指南
-- Bug 修复记录
-- 更新日志
+### 1. 安装和启动
 
-**技术栈**:
-- Backend: Django 3.2+ + SQLite
-- Frontend: Bootstrap 5
-- AI: PyTorch + NumPy
-- Scheduler: APScheduler
+```bash
+# 克隆项目（如果还没有）
+git clone <repository>
+cd lottery_3d_predict
 
-📂 **文档列表**:
-- [系统架构](developer/architecture.md)
-- [所有修复总结](developer/ALL_FIXES_SUMMARY.md)
-- [爬虫 API 修复](developer/FIX_CRAWLER_API.md)
-- [预测 API 修复](developer/FIX_PREDICT_API.md)
-- [Web 界面修复](developer/FIX_WEB_INTERFACE.md)
-- [更新日志](developer/CHANGELOG.md)
-- [更新记录](developer/UPDATES.md)
+# 安装依赖
+pip install -r requirements.txt
 
----
-
-### 🔧 [运维文档](operator/README.md)
-**适合人群**: 系统部署和运维人员
-
-**包含内容**:
-- 定时任务配置
-- 部署指南
-- 监控和日志管理
-- 故障排查
-
-**定时任务**:
-- 每日机会评估 (9:00)
-- 每周数据爬取 (周一 8:00)
-- 清理过期记录 (2:00)
-
-📂 **文档列表**:
-- [定时任务指南](operator/SCHEDULER_GUIDE.md)
-- [快速参考](operator/SCHEDULER_QUICK_REFERENCE.md)
-- [安装完成报告](operator/SCHEDULER_SETUP_COMPLETE.md)
-
----
-
-### 📊 [分析师文档](analyst/README.md)
-**适合人群**: 数据分析和研究人员
-
-**包含内容**:
-- 回测报告
-- 训练记录
-- 数据分析
-- 特征工程
-
-**数据规模**:
-- 历史数据: 7,362 期
-- 时间范围: 2003-2026
-- 回测期数: 200+ 期
-- 策略数量: 3 种
-
-📂 **文档列表**:
-- [回测报告](analyst/BACKTEST_REPORT.md)
-- [训练总结](analyst/TRAINING_SUMMARY.md)
-- [真实数据总结](analyst/REAL_DATA_SUMMARY.md)
-- [特征定义](analyst/feature_definitions.md)
-
----
-
-## 📖 项目总结文档
-
-这些文档提供项目的整体概览和完成情况：
-
-- [项目总结](PROJECT_SUMMARY.md) - 项目完整说明
-- [项目完成总结](PROJECT_COMPLETE_SUMMARY.md) - 最终交付总结
-- [今日总结](TODAY_SUMMARY.md) - 每日工作记录
-- [最终清单](FINAL_CHECKLIST.md) - 完成度检查
-- [最终交付](FINAL_DELIVERY.md) - 交付文档
-- [交付清单](DELIVERY_CHECKLIST.md) - 交付检查清单
-- [最终测试报告](FINAL_TEST_REPORT.md) - 测试结果
-
----
-
-## 🔍 按功能查找文档
-
-### 投资相关
-- [投资策略报告](investor/INVESTMENT_STRATEGY_REPORT.md) - 详细策略分析
-- [ROI 报告](investor/ROI_REPORT.md) - 收益率计算
-- [每日评估](investor/DAILY_CHECK_README.md) - 日常操作
-
-### 系统使用
-- [快速开始](user/QUICK_START.md) - 新手入门
-- [Web 应用](user/WEB_APP_README.md) - 界面使用
-- [API 文档](user/API_DOCUMENTATION.md) - 接口调用
-
-### 开发维护
-- [系统架构](developer/architecture.md) - 架构设计
-- [修复记录](developer/ALL_FIXES_SUMMARY.md) - 问题解决
-- [更新日志](developer/CHANGELOG.md) - 版本历史
-
-### 部署运维
-- [定时任务](operator/SCHEDULER_GUIDE.md) - 调度配置
-- [快速参考](operator/SCHEDULER_QUICK_REFERENCE.md) - 常用命令
-
-### 数据分析
-- [回测报告](analyst/BACKTEST_REPORT.md) - 历史验证
-- [训练记录](analyst/TRAINING_SUMMARY.md) - 模型训练
-- [特征定义](analyst/feature_definitions.md) - 特征说明
-
----
-
-## 📋 文档目录树
-
+# 启动Web服务
+python manage.py runserver 0.0.0.0:8000
 ```
-docs/
-├── README.md                          # 本文档（文档中心导航）
-│
-├── investor/                          # 💰 投资者文档
-│   ├── README.md                      # 投资者文档索引
-│   ├── INVESTMENT_STRATEGY_REPORT.md  # 投资策略报告
-│   ├── ROI_REPORT.md                  # ROI 分析
-│   ├── DYNAMIC_BETTING_REPORT.md      # 动态投注策略
-│   └── DAILY_CHECK_README.md          # 每日评估指南
-│
-├── user/                              # 👤 用户文档
-│   ├── README.md                      # 用户文档索引
-│   ├── QUICK_START.md                 # 快速开始
-│   ├── WEB_APP_README.md              # Web 应用手册
-│   ├── API_DOCUMENTATION.md           # API 文档
-│   └── TEST_URLS.md                   # URL 测试清单
-│
-├── developer/                         # 👨‍💻 开发者文档
-│   ├── README.md                      # 开发者文档索引
-│   ├── architecture.md                # 系统架构
-│   ├── ALL_FIXES_SUMMARY.md           # 修复总结
-│   ├── FIX_CRAWLER_API.md             # 爬虫修复
-│   ├── FIX_PREDICT_API.md             # 预测修复
-│   ├── FIX_WEB_INTERFACE.md           # 界面修复
-│   ├── CHANGELOG.md                   # 更新日志
-│   └── UPDATES.md                     # 更新记录
-│
-├── operator/                          # 🔧 运维文档
-│   ├── README.md                      # 运维文档索引
-│   ├── SCHEDULER_GUIDE.md             # 定时任务指南
-│   ├── SCHEDULER_QUICK_REFERENCE.md   # 快速参考
-│   └── SCHEDULER_SETUP_COMPLETE.md    # 安装报告
-│
-├── analyst/                           # 📊 分析师文档
-│   ├── README.md                      # 分析师文档索引
-│   ├── BACKTEST_REPORT.md             # 回测报告
-│   ├── TRAINING_SUMMARY.md            # 训练总结
-│   ├── REAL_DATA_SUMMARY.md           # 数据总结
-│   └── feature_definitions.md         # 特征定义
-│
-└── [项目总结文档]                      # 项目级文档
-    ├── PROJECT_SUMMARY.md
-    ├── PROJECT_COMPLETE_SUMMARY.md
-    ├── FINAL_DELIVERY.md
-    └── ...
+
+### 2. 查看今日投注建议
+
+**方式1: 命令行（推荐）**
+```bash
+python tools/betting/bet_advisor.py
+```
+
+**方式2: Web界面**
+```
+访问 http://localhost:8000/predictions/
+```
+
+### 3. 设置定时任务（可选）
+
+```bash
+# 每天20:00自动生成建议
+crontab -e
+
+# 添加
+0 20 * * * /path/to/lottery_3d_predict/tools/betting/schedule_daily_recommendation.sh
 ```
 
 ---
 
-## 🚀 快速入口
+## 📚 分类文档
 
-### 我是新用户
-👉 从这里开始: [快速开始指南](user/QUICK_START.md)
+### 用户文档（user/）
 
-### 我想投资
-👉 查看策略: [投资策略报告](investor/INVESTMENT_STRATEGY_REPORT.md)
+| 文档 | 说明 | 状态 |
+|------|------|------|
+| [DAILY_RECOMMENDATION_SETUP.md](user/DAILY_RECOMMENDATION_SETUP.md) | 每日建议设置详细指南 | ✅ 当前 |
+| [QUICK_START.md](user/QUICK_START.md) | 快速开始指南 | ✅ 当前 |
+| [WEB_APP_README.md](user/WEB_APP_README.md) | Web应用使用说明 | ✅ 当前 |
 
-### 我是开发者
-👉 了解架构: [系统架构文档](developer/architecture.md)
+### 开发者文档（developer/）
 
-### 我要部署
-👉 部署指南: [定时任务配置](operator/SCHEDULER_GUIDE.md)
+| 文档 | 说明 | 状态 |
+|------|------|------|
+| [SELECTIVE_BETTING_STRATEGY_SUCCESS.md](developer/SELECTIVE_BETTING_STRATEGY_SUCCESS.md) | 选择性投注策略详细报告 | ✅ 当前 |
+| [FRONTEND_INTEGRATION_COMPLETE.md](developer/FRONTEND_INTEGRATION_COMPLETE.md) | 前端集成完成报告 | ✅ 当前 |
+| [architecture.md](developer/architecture.md) | 系统架构说明 | ✅ 当前 |
+| ~~THRESHOLD_SCAN_CRITICAL_FINDINGS.md~~ | 旧版阈值扫描 | ❌ 已弃用 |
+| ~~PROBABILITY_BASED_BETTING.md~~ | 旧版概率投注 | ❌ 已弃用 |
 
-### 我要分析
-👉 查看数据: [回测报告](analyst/BACKTEST_REPORT.md)
+### 分析师文档（analyst/）
 
----
+| 文档 | 说明 | 状态 |
+|------|------|------|
+| [BACKTEST_REPORT.md](analyst/BACKTEST_REPORT.md) | 回测报告 | ⚠️ 参考 |
+| [TRAINING_SUMMARY.md](analyst/TRAINING_SUMMARY.md) | 模型训练总结 | ⚠️ 参考 |
 
-## 📱 文档格式说明
+### 运维文档（operator/）
 
-所有文档使用 Markdown 格式编写，可以通过以下方式阅读：
-
-1. **GitHub 网页**: 直接在 GitHub 仓库中查看
-2. **本地编辑器**: 使用 VSCode, Typora 等编辑器
-3. **Markdown 阅读器**: 使用专用的 Markdown 阅读器
-4. **转换为 PDF**: 使用 Pandoc 等工具转换
-
----
-
-## 🔄 文档更新
-
-### 更新频率
-- 投资者文档: 重大策略变更时更新
-- 用户文档: 功能更新时同步更新
-- 开发者文档: 代码变更时及时更新
-- 运维文档: 配置变更时更新
-- 分析师文档: 数据分析完成后更新
-
-### 版本管理
-所有文档底部标注：
-- 最后更新时间
-- 文档版本
-- 维护者信息
+| 文档 | 说明 | 状态 |
+|------|------|------|
+| [SCHEDULER_GUIDE.md](operator/SCHEDULER_GUIDE.md) | 调度器使用指南 | ✅ 当前 |
 
 ---
 
-## 💡 文档贡献
+## ⚠️ 已弃用文档
 
-欢迎改进文档！
+以下文档包含过时或不稳定的信息，**请勿参考**：
 
-### 如何贡献
-1. 发现文档错误或需要改进的地方
-2. 创建 Issue 或直接提交 PR
-3. 遵循现有文档的格式和风格
-4. 更新文档底部的版本信息
+### investor/ 目录（全部弃用）
 
-### 文档规范
-- 使用 Markdown 格式
-- 添加适当的 emoji 提升可读性
-- 包含代码示例和截图
-- 保持简洁明了
-- 定期更新
+- ❌ INVESTMENT_STRATEGY_REPORT.md
+- ❌ ROI_REPORT.md  
+- ❌ DYNAMIC_BETTING_REPORT.md
+- ❌ DAILY_CHECK_README.md
 
----
+**弃用原因**: 早期研究文档，结论不稳定，已被Top5策略替代。
 
-## 📧 获取帮助
+### developer/ 部分文档
 
-找不到需要的信息？
+- ❌ THRESHOLD_SCAN_CRITICAL_FINDINGS.md - 旧版阈值扫描结论（全部阈值亏损）
+- ❌ PROBABILITY_BASED_BETTING.md - 旧版概率模型
+- ❌ PROBABILITY_MODEL_BACKTEST_RESULTS.md - 旧版回测结果
 
-1. 📖 查看相应角色的 README 索引
-2. 🔍 使用 Ctrl+F 搜索关键词
-3. 💬 在 GitHub Issues 提问
-4. 📧 联系项目维护者
+**弃用原因**: 已被选择性投注策略（Top5）替代，新策略ROI +98.4% vs 旧策略全亏。
 
 ---
 
-## 🔗 外部资源
+## 🎯 文档导航
 
-- [Django 官方文档](https://docs.djangoproject.com/)
-- [PyTorch 官方文档](https://pytorch.org/docs/)
-- [Bootstrap 官方文档](https://getbootstrap.com/)
-- [APScheduler 文档](https://apscheduler.readthedocs.io/)
+### 我想...
+
+**查看投注建议**
+→ 运行 `python tools/betting/bet_advisor.py`
+→ 或访问 http://localhost:8000/predictions/
+
+**了解策略原理**
+→ 阅读 [投注策略指南](BETTING_STRATEGY_GUIDE.md)
+
+**查看回测数据**
+→ 阅读 [选择性投注策略报告](developer/SELECTIVE_BETTING_STRATEGY_SUCCESS.md)
+
+**设置定时任务**
+→ 阅读 [每日建议设置](user/DAILY_RECOMMENDATION_SETUP.md)
+
+**理解系统架构**
+→ 阅读 [架构文档](developer/architecture.md)
+
+**查看API文档**
+→ 阅读 [API文档](user/API_DOCUMENTATION.md)
 
 ---
 
-**最后更新**: 2026-02-05  
-**文档版本**: v1.0  
-**维护状态**: ✅ 积极维护
+## 📊 核心数据（快速参考）
+
+### Top5策略（推荐）
+
+- **ROI**: +98.4%
+- **投注率**: 5% (25/500期)
+- **胜率**: 24%
+- **成本**: 5,000元
+- **收益**: 9,920元
+- **利润**: +4,920元
+
+### 模型准确率
+
+- **Top5命中率**: 49.5%
+- **Top10命中率**: 100%
+- **完全命中率**: 5.8%
+
+### 建议
+
+- **每次投注**: 100注 (200元)
+- **月投注上限**: 2,000元
+- **连续不中止损**: 5期
 
 ---
 
-<div align="center">
-<b>📚 选择您的角色，开始探索文档！</b>
+## 🔄 更新日志
 
-[💰 投资者](investor/README.md) | [👤 用户](user/README.md) | [👨‍💻 开发者](developer/README.md) | [🔧 运维](operator/README.md) | [📊 分析师](analyst/README.md)
+### v2.0 (2026-02-06)
 
-[⬆️ 返回项目首页](../README.md)
-</div>
+- ✅ 创建统一的投注策略指南
+- ✅ 整合前端投注建议到预测记录页面
+- ✅ 创建命令行工具 bet_advisor.py
+- ✅ 优化界面，显示组选结果而非单个数字
+- ✅ 标记弃用文档
+- ✅ 清晰的数据结论和风险提示
+
+### v1.0 (2026-02-05)
+
+- ✅ 完成Top5策略回测
+- ✅ 实现每日投注建议自动生成
+- ✅ 前端API集成
+
+---
+
+## 📞 获取帮助
+
+### 常见问题
+
+**Q: 为什么不是每期都投注？**  
+A: 数据显示，只投注前5%高置信度期次，ROI高达+98.4%，远超全期投注的-43.8%。
+
+**Q: Top5策略可靠吗？**  
+A: 基于500期回测，结论稳定。但样本量较小（25个投注期），未来表现不保证。
+
+**Q: 能否改进策略提高ROI？**  
+A: 可以尝试前3%或前2%，但投注机会会更少。建议先使用Top5积累实盘数据。
+
+**Q: 彩票能靠此盈利吗？**  
+A: 不建议。彩票本质是负期望值游戏，任何策略都无法改变这一数学事实。
+
+### 技术支持
+
+- 查看文档: `docs/`
+- 运行测试: `python tools/betting/bet_advisor.py`
+- Web界面: http://localhost:8000
+
+---
+
+**维护者**: AI Assistant  
+**最后更新**: 2026-02-06  
+**License**: MIT
